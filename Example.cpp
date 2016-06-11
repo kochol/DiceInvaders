@@ -2,6 +2,9 @@
 #include <cassert>
 #include <cstdio>
 #include "DiceInvaders.h"
+#include <cstdint>
+#include <unordered_map>
+#include <array>
 
 class DiceInvadersLib
 {
@@ -36,6 +39,70 @@ private:
 	HMODULE m_lib;
 };
 
+struct Transform
+{
+	float x;
+	float y;
+};
+
+struct Player
+{
+	Transform *transform;
+	ISprite *sprite;
+
+	float lastFired;
+	uint8_t health;
+};
+
+struct Rocket
+{
+	Transform *transform;
+	ISprite *sprite;
+};
+
+struct Alien
+{
+	Transform *transform;
+	ISprite *sprite;
+	float lastDroped;
+};
+
+struct Bomb
+{
+	Transform *transform;
+	ISprite *sprite;
+};
+
+struct GlobalMemory
+{
+	std::array<Transform, 100> transforms;
+	std::array<ISprite**, 100> sprites;
+
+	std::array<Player, 1> players;
+	std::array<Rocket, 100> rockets;
+	std::array<Alien, 100> aliens;
+	std::array<Bomb, 100> bombs;
+
+	std::unordered_map<std::string, ISprite*> spriteMap;
+
+	GlobalMemory()
+	{
+	}
+};
+
+void CreateDrawable(const char* const spriteName, const Transform** outTransform, const ISprite** outSprite)
+{
+
+}
+
+void DrawScene(const Transform* firstTransform, ISprite* firstSprite, const uint16_t count)
+{
+	for (uint16_t i = 0; i < count; ++i)
+	{
+		const Transform* lTransform = firstTransform + i;
+		(firstSprite + i)->draw(lTransform->x, lTransform->y);
+	}
+}
 
 int APIENTRY WinMain(
 	HINSTANCE instance,
