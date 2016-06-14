@@ -39,6 +39,8 @@ private:
 	HMODULE m_lib;
 };
 
+
+
 struct Transform
 {
 	float x;

@@ -18,9 +18,18 @@
     <ClInclude Include="DiceInvaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RosteredPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Example.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

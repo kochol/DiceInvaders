@@ -146,9 +146,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ComponentSystem.h" />
     <ClInclude Include="DiceInvaders.h" />
+    <ClInclude Include="RosteredPool.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ComponentSystem.cpp" />
     <ClCompile Include="Example.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
