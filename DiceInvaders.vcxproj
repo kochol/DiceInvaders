@@ -146,13 +146,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ComponentSystem.h" />
+    <ClInclude Include="DataTypes.h" />
     <ClInclude Include="DiceInvaders.h" />
+    <ClInclude Include="EntityManager.h" />
+    <ClInclude Include="ModelManager.h" />
     <ClInclude Include="RosteredPool.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ComponentSystem.cpp" />
-    <ClCompile Include="Example.cpp" />
+    <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelManager.cpp" />
+    <ClCompile Include="RosteredPool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

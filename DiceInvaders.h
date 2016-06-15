@@ -1,5 +1,4 @@
-#ifndef DICEINVADERS_H
-#define DICEINVADERS_H
+#pragma once
 
 struct ISprite
 {
@@ -48,5 +47,3 @@ struct IDiceInvaders
 
 // A factory type for creating IDiceInvaders instances.
 typedef IDiceInvaders* (__cdecl DiceInvadersFactoryType)();
-
-#endif

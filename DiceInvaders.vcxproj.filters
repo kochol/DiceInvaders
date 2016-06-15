@@ -18,18 +18,30 @@
     <ClInclude Include="DiceInvaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentSystem.h">
+    <ClInclude Include="RosteredPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RosteredPool.h">
+    <ClInclude Include="EntityManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Example.cpp">
+    <ClCompile Include="EntityManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentSystem.cpp">
+    <ClCompile Include="ModelManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RosteredPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
