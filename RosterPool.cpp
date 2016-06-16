@@ -7,7 +7,8 @@ namespace Engine
 {
 	RosterPool::RosterPool() :
 		buffer(nullptr),
-		item_size(0),
+		buffer_count(0),
+		item_size(nullptr),
 		max_item_count(0),
 		item_partition(0),
 		indexes(nullptr)
@@ -15,14 +16,24 @@ namespace Engine
 
 	void RosterPool::Init(const uint16_t _max_item_count, const size_t _item_size)
 	{
-		item_size = _item_size;
+		Init(1, _max_item_count, &_item_size);
+	}
+
+	void RosterPool::Init(const uint8_t _buffer_count, const uint16_t _max_item_count, const size_t *const _item_size)
+	{
+		buffer_count = _buffer_count;
+		item_size = new size_t[_buffer_count];
+		buffer = new uint8_t*[_buffer_count];
+		for (uint8_t i = 0; i < buffer_count; ++i)
+		{
+			item_size[i] = _item_size[i];
+			buffer[i] = reinterpret_cast<uint8_t*>(malloc(_max_item_count * item_size[i]));
+		}
+
 		max_item_count = _max_item_count;
 		item_partition = 0;
-
-		buffer = reinterpret_cast<uint8_t*>(malloc(_max_item_count * item_size));
-		assert(buffer != nullptr);
+		
 		indexes = reinterpret_cast<uint16_t*>(malloc(_max_item_count * sizeof(uint16_t)));
-		assert(indexes != nullptr);
 		for (uint16_t i = 0; i < max_item_count; ++i)
 			indexes[i] = i;
 	}

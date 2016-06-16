@@ -31,7 +31,7 @@ namespace Engine
 	ComponentHandle     CreateModel(const EntityHandle    handle, const ResourceHandle sprite);
 	inline ComponentHandle     LookupModel(const EntityHandle    handle) { return g_context->world->modelMap[handle]; }
 	void                DestroyModel(const ComponentHandle handle);
-	inline  Transform*  ResolveTransform(const ComponentHandle handle) { return ResolveLayer(handle)->transforms.Resolve(handle.index); }
+	inline  Transform*  ResolveTransform(const ComponentHandle handle) { return ResolveLayer(handle)->models.ResolveFirst(handle.index); }
 
 	// Resources
 	ResourceHandle   LoadSprite(const std::string& name);

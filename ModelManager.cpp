@@ -12,13 +12,12 @@ namespace Engine
 		Layer *const layer = ResolveLayer(handle);
 
 		ComponentHandle compHandle;
-		compHandle.index = layer->transforms.Alloc();
-		layer->sprites.Alloc();
+		compHandle.index = layer->models.Alloc();
 		compHandle.header.type = ComponentType::MODEL;
 		compHandle.header.layer = handle.header.layer;
 
-		*layer->transforms.Resolve(compHandle.index) = { handle, 0.f, 0.f };
-		*layer->sprites.Resolve(compHandle.index) = sprite;
+		*layer->models.ResolveFirst(compHandle.index) = { handle, 0.f, 0.f };
+		*layer->models.ResolveSecond(compHandle.index) = sprite;
 		
 		world->modelMap[handle] = compHandle;
 
@@ -37,8 +36,7 @@ namespace Engine
 
 		Layer *const layer = ResolveLayer(handle);
 
-		layer->transforms.Free(handle.index);
-		layer->sprites.Free(handle.index);
+		layer->models.Free(handle.index);
 	}
 
 	void Render()
@@ -48,12 +46,11 @@ namespace Engine
 		for (const auto layerPair : world->layers)
 		{
 			const Layer *const layer = layerPair.second;
-			assert(layer->transforms.Size() == layer->sprites.Size());
 
-			const uint16_t* indexes = layer->transforms.Indexes();
-			const Transform *const transforms = layer->transforms.Data();
-			const ResourceHandle *const sprites = layer->sprites.Data();
-			const uint16_t count = layer->transforms.Size();
+			const uint16_t* indexes = layer->models.Indexes();
+			const Transform *const transforms = layer->models.DataFirst();
+			const ResourceHandle *const sprites = layer->models.DataSecond();
+			const uint16_t count = layer->models.Size();
 
 			for (uint16_t i = 0; i < count; ++i)
 			{
@@ -77,14 +74,14 @@ namespace Engine
 			Layer *const first_layer = world->layers[collisionMask.first];
 			Layer *const second_layer = world->layers[collisionMask.second];
 
-			const uint16_t first_count = first_layer->transforms.Size();
-			const uint16_t second_count = second_layer->transforms.Size();
+			const uint16_t first_count = first_layer->models.Size();
+			const uint16_t second_count = second_layer->models.Size();
 
-			const uint16_t *const first_indexes = first_layer->transforms.Indexes();
-			const uint16_t *const second_indexes = second_layer->transforms.Indexes();
+			const uint16_t *const first_indexes = first_layer->models.Indexes();
+			const uint16_t *const second_indexes = second_layer->models.Indexes();
 
-			Transform *const first_transforms = first_layer->transforms.Data();
-			Transform *const second_transforms = second_layer->transforms.Data();
+			Transform *const first_transforms = first_layer->models.DataFirst();
+			Transform *const second_transforms = second_layer->models.DataFirst();
 			
 			for (uint16_t i = 0; i < first_count; ++i)
 			{

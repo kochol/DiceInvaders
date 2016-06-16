@@ -98,8 +98,7 @@ namespace Engine
 		Layer *const layer = new Layer;
 
 		layer->id = layer_id;
-		layer->transforms.Init(max_items);
-		layer->sprites.Init(max_items);
+		layer->models.Init(max_items);
 
 		g_context->world->layers.insert(std::make_pair(layer_id, layer));
 	}

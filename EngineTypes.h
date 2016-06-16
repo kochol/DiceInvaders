@@ -60,8 +60,7 @@ namespace Engine
 	struct Layer
 	{
 		LayerId id;
-		RosterPoolTyped<Transform> transforms;
-		RosterPoolTyped<ResourceHandle> sprites;
+		RosterPoolPairTyped<Transform, ResourceHandle> models;
 	};
 
 	struct World
