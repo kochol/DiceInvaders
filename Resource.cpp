@@ -3,32 +3,29 @@
 
 namespace Engine
 {
-	ResourceHandle LoadSprite(IDiceInvaders *const system, Resources *const resources, const std::string& name)
+	ResourceHandle LoadSprite(const std::string& name)
 	{
+		ILibrary *const system = g_context->system;
+		Resources *const resources = g_context->resources;
+
 		ISprite *const sprite = system->createSprite(name.c_str());
 		assert(sprite != nullptr);
 
-		const ResourceHandle handle = resources->handleManager.Create();
-		resources->spriteMap[handle] = { sprite };
+		ResourceHandle handle;
+		handle.index = resources->handleManager.Alloc();
+		handle.header.type = ResourceType::SPRITE;
+		handle.header.padding = 0;
+		resources->spriteMap[handle] = sprite;
 
 		return handle;
 	}
 
-	Sprite LookupSprite(const Resources& resources, const ResourceHandle handle)
+	void DestroySprite(ResourceHandle handle)
 	{
-		const auto sprite = resources.spriteMap.find(handle);
-		assert(sprite != resources.spriteMap.end());
+		Resources *const resources = g_context->resources;
 
-		return sprite->second;
-	}
-
-	void DestroySprite(const IDiceInvaders *const system, Resources *const resources, ResourceHandle handle)
-	{
-		const auto sprite = resources->spriteMap.find(handle);
-		assert(sprite != resources->spriteMap.end());
-
-		sprite->second.sprite->destroy();
+		resources->spriteMap[handle]->destroy();
 		resources->spriteMap.erase(handle);
-		resources->handleManager.Destroy(handle);
+		resources->handleManager.Free(handle.index);
 	}
 }

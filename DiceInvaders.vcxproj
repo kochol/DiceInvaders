@@ -146,21 +146,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="DataTypes.h" />
-    <ClInclude Include="DiceInvaders.h" />
+    <ClInclude Include="EngineTypes.h" />
+    <ClInclude Include="Enums.h" />
+    <ClInclude Include="Handle.h" />
+    <ClInclude Include="Library.h" />
     <ClInclude Include="Engine.h" />
-    <ClInclude Include="HandleManager.h" />
+    <ClInclude Include="EntityHandleManager.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="RosteredPool.h" />
+    <ClInclude Include="RosterPool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
-    <ClCompile Include="HandleManager.cpp" />
+    <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="EntityHandleManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Resource.cpp" />
-    <ClCompile Include="RosteredPool.cpp" />
+    <ClCompile Include="RosterPool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

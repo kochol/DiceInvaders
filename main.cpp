@@ -8,29 +8,32 @@ int APIENTRY WinMain(
 	LPSTR commandLine,
 	int commandShow)
 {
-	Engine::Context *ctx = Engine::Init(640, 480);
+	Engine::Config config;
+	config.screen_width = 640;
+	config.screen_height = 480;
 
-	Engine::EntityHandle player = Game::CreatePlayer(ctx);
+	Engine::Init(config);
+	Engine::AddLayer(Engine::LayerId::PLAYER, 1);
+	Engine::AddLayer(Engine::LayerId::ALIEN, 100);
+	Engine::AddLayer(Engine::LayerId::BOMB, 100);
+	Engine::AddLayer(Engine::LayerId::ROCKET, 100);
 
-	float lastTime = ctx->system->getElapsedTime();
+	Engine::EntityHandle player = Game::CreatePlayer();
+
 	bool running = true;
-	while (running)
+	while (Engine::ShouldRun())
 	{
-		const float newTime = ctx->system->getElapsedTime();
-		const float dt = newTime - lastTime;
-		lastTime = newTime;
-		
-		Engine::KeyStatus keys;
-		ctx->system->getKeyStatus(keys);
+		Engine::PreUpdate();
 
-		Game::UpdatePlayerFromInput(dt, player, ctx->world, keys);
+		Engine::RegUpdate();
+		Game::UpdatePlayerFromInput(player);
 
-		Engine::DrawModels(*ctx->world);
+		Engine::Render();
 
-		running = ctx->system->update();
+		Engine::PostUpdate();
 	}
 
-	Engine::Shutdown(ctx);
+	Engine::Shutdown();
 
 	return 0;
 }

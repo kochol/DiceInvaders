@@ -1,11 +1,11 @@
-#include "RosteredPool.h"
+#include "RosterPool.h"
 #include <cstdlib>
 #include <cassert>
 #include <utility>
 
 namespace Engine
 {
-	RosteredPool::RosteredPool() :
+	RosterPool::RosterPool() :
 		buffer(nullptr),
 		item_size(0),
 		max_item_count(0),
@@ -13,7 +13,7 @@ namespace Engine
 		indexes(nullptr)
 	{}
 
-	void RosteredPool::Init(const uint16_t _max_item_count, const size_t _item_size)
+	void RosterPool::Init(const uint16_t _max_item_count, const size_t _item_size)
 	{
 		item_size = _item_size;
 		max_item_count = _max_item_count;
@@ -27,28 +27,22 @@ namespace Engine
 			indexes[i] = i;
 	}
 
-	RosteredPool::~RosteredPool()
+	RosterPool::~RosterPool()
 	{
 		free(buffer);
 		free(indexes);
 	}
 
-	uint16_t RosteredPool::Alloc()
+	uint16_t RosterPool::Alloc()
 	{
 		assert(item_partition < max_item_count);
 		return indexes[item_partition++];
 	}
 
-	void RosteredPool::Free(uint16_t handle)
+	void RosterPool::Free(const uint16_t handle)
 	{
 		assert(handle < max_item_count);
 		std::swap(indexes[item_partition - 1], indexes[handle]);
 		--item_partition;
-	}
-
-	void* RosteredPool::Resolve(uint16_t handle) const
-	{
-		assert(handle < max_item_count);
-		return buffer + (handle * item_size);
 	}
 }

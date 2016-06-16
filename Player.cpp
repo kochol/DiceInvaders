@@ -2,29 +2,32 @@
 
 namespace Game
 {
-	void UpdatePlayerFromInput(const float dt, const Engine::EntityHandle playerEntity, Engine::World *const world, const Engine::KeyStatus& keys)
+	void UpdatePlayerFromInput(const Engine::EntityHandle player)
 	{
-		const float move = dt * 160.0f;
+		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
+		const float move = frame_data->dt * 160.0f;
 
-		const Engine::ComponentHandle playerModel = world->modelMap[playerEntity];
+		const Engine::ComponentHandle model = Engine::LookupModel(player);
+		Engine::Transform *const transform = Engine::ResolveTransform(model);
 
-		if (keys.right)
-			world->transforms[playerModel.index].x += move;
-		else if (keys.left)
-			world->transforms[playerModel.index].x -= move;
+		if (frame_data->keys.right)
+			transform->x += move;
+		else if (frame_data->keys.left)
+			transform->x -= move;
 	}
 
-	Engine::EntityHandle CreatePlayer(Engine::Context *const context)
+	Engine::EntityHandle CreatePlayer()
 	{
-		const std::string playerSpriteName = "data/player.bmp";
-		const Engine::ResourceHandle playerSpriteHandle = Engine::LoadSprite(context->system, context->resources, playerSpriteName);
-		const Engine::Sprite playerSprite = Engine::LookupSprite(*context->resources, playerSpriteHandle);
+		const std::string sprite_name = "data/player.bmp";
+		const Engine::ResourceHandle sprite = Engine::LoadSprite(sprite_name);
 
-		const Engine::EntityHandle player = context->world->handleManager.Create();
-		const Engine::ComponentHandle playerModel = Engine::CreateModel(context->world, player, playerSprite);
+		const Engine::EntityHandle player = Engine::CreateEntity(Engine::LayerId::PLAYER);
+		const Engine::ComponentHandle model = Engine::CreateModel(player, sprite);
 
-		context->world->transforms[playerModel.index].y = context->height - 32;
-		context->world->transforms[playerModel.index].x = context->width / 2;
+		Engine::Transform *const transform = Engine::ResolveTransform(model);
+
+		transform->y = Engine::g_context->config->screen_height - 32;
+		transform->x = Engine::g_context->config->screen_width / 2;
 
 		return player;
 	}

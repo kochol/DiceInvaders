@@ -1,77 +1,115 @@
 #include "Engine.h"
 #include <cassert>
 
-#include "DiceInvaders.h"
-
 namespace Engine
 {
-	ComponentHandle CreateModel(World* const world, const EntityHandle handle, const Sprite sprite)
+	ComponentHandle CreateModel(const EntityHandle handle, const ResourceHandle sprite)
 	{
-		const ComponentHandle compHandle = { world->transforms.size(), 0 };
+		World *const world = g_context->world;
 
-		world->transforms.push_back({ handle, 0.f, 0.f });
-		world->sprites.push_back(sprite);
-		world->layers.push_back(0);
+		assert(world->layers.find(handle.header.layer) != world->layers.end());
+
+		Layer *const layer = ResolveLayer(handle);
+
+		ComponentHandle compHandle;
+		compHandle.index = layer->transforms.Alloc();
+		layer->sprites.Alloc();
+		compHandle.header.type = ComponentType::MODEL;
+		compHandle.header.layer = handle.header.layer;
+
+		*layer->transforms.Resolve(compHandle.index) = { handle, 0.f, 0.f };
+		*layer->sprites.Resolve(compHandle.index) = sprite;
+		
+		world->modelMap[handle] = compHandle;
 
 		return compHandle;
 	}
 
-	ComponentHandle LookupModel(const World &world, const EntityHandle handle)
+	void DestroyModel(const ComponentHandle handle)
 	{
-		const auto compHandle = world.modelMap.find(handle);
-		assert(compHandle != world.modelMap.end());
-		return compHandle->second;
-	}
+		World *const world = g_context->world;
 
-	void DestroyModel(World *const world, const ComponentHandle handle)
-	{
 		// TODO: make it deferred
 		assert(handle.index < world->modelMap.size());
 
-		const EntityHandle oldEntityHandle = world->transforms[handle.index].handle;
-		world->modelMap.erase(oldEntityHandle);
+		const Transform *const transform = ResolveTransform(handle);
+		world->modelMap.erase(transform->handle);
 
-		const uint32_t lastIndex = world->transforms.size() - 1;
-		world->transforms[handle.index] = world->transforms[lastIndex];
-		world->sprites[handle.index] = world->sprites[lastIndex];
-		world->layers[handle.index] = world->layers[lastIndex];
+		Layer *const layer = ResolveLayer(handle);
 
-		const EntityHandle newEntityHandle = world->transforms[handle.index].handle;
-		world->modelMap[newEntityHandle] = handle;
-
-		// TODO: update other comp model handles
+		layer->transforms.Free(handle.index);
+		layer->sprites.Free(handle.index);
 	}
 
-	void DrawModels(const World& world)
+	void Render()
 	{
-		assert(world.transforms.size() == world.sprites.size());
+		const World *const world = g_context->world;
 
-		const uint16_t count = world.transforms.size();
-		for (uint16_t i = 0; i < count; ++i)
+		for (const auto layerPair : world->layers)
 		{
-			world.sprites[i].sprite->draw(world.transforms[i].x, world.transforms[i].y);
+			const Layer *const layer = layerPair.second;
+			assert(layer->transforms.Size() == layer->sprites.Size());
+
+			const uint16_t* indexes = layer->transforms.Indexes();
+			const Transform *const transforms = layer->transforms.Data();
+			const ResourceHandle *const sprites = layer->sprites.Data();
+			const uint16_t count = layer->transforms.Size();
+
+			for (uint16_t i = 0; i < count; ++i)
+			{
+				const uint16_t index = indexes[i];
+				ISprite *const sprite = LookupSprite(sprites[index]);
+				sprite->draw(transforms[index].x, transforms[index].y);
+			}
 		}
 	}
 
-	void DetectCollisions(const World& world, std::vector<CollisionInfo>* collisions)
+	void DetectCollisions()
 	{
-		assert(collisions != nullptr && collisions->empty());
+		World *const world = g_context->world;
+
+		std::vector<CollisionInfo> *const collisions = &g_context->frame_data->collisions;
 
 		const int size = 32;
-		const uint16_t count = world.transforms.size();
 
-		for (uint16_t i = 0; i < count; ++i)
+		for (const auto collisionMask : world->collisionMasks)
 		{
-			for (uint16_t j = 0; j < i; ++j)
-			{
-				if (world.transforms[i].x < world.transforms[j].x + size &&
-					world.transforms[i].x + size > world.transforms[j].x &&
-					world.transforms[i].y < world.transforms[j].y + size &&
-					world.transforms[i].y + size > world.transforms[j].y)
-				{
-					collisions->push_back(CollisionInfo{ i, j });
-				}
+			Layer *const first_layer = world->layers[collisionMask.first];
+			Layer *const second_layer = world->layers[collisionMask.second];
 
+			const uint16_t first_count = first_layer->transforms.Size();
+			const uint16_t second_count = second_layer->transforms.Size();
+
+			const uint16_t *const first_indexes = first_layer->transforms.Indexes();
+			const uint16_t *const second_indexes = second_layer->transforms.Indexes();
+
+			Transform *const first_transforms = first_layer->transforms.Data();
+			Transform *const second_transforms = second_layer->transforms.Data();
+			
+			for (uint16_t i = 0; i < first_count; ++i)
+			{
+				const uint16_t first_index = first_indexes[i];
+				const Transform *const first_transform = first_transforms + first_index;
+
+				for (uint16_t j = 0; j < second_count; ++j)
+				{
+					const uint16_t second_index = second_indexes[j];
+					const Transform *const second_transform = second_transforms + second_index;
+
+					if (first_transform->x < second_transform->x + size &&
+						first_transform->x + size > second_transform->x &&
+						first_transform->y < second_transform->y + size &&
+						first_transform->y + size > second_transform->y)
+					{
+						const CollisionInfo collision_info =
+						{
+							first_transform->handle,
+							second_transform->handle
+						};
+
+						collisions->push_back(collision_info);
+					}
+				}
 			}
 		}
 	}

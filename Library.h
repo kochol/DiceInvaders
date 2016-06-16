@@ -21,7 +21,7 @@ namespace Engine
 		bool right; // right arrow
 	};
 
-	struct IDiceInvaders
+	struct ILibrary
 	{
 		// Destroys the dice invaders instance
 		virtual void destroy() = 0;
@@ -49,5 +49,5 @@ namespace Engine
 	};
 
 	// A factory type for creating IDiceInvaders instances.
-	typedef IDiceInvaders* (__cdecl DiceInvadersFactoryType)();
+	typedef ILibrary* (__cdecl LibraryFactoryType)();
 }

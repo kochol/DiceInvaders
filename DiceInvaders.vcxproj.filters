@@ -7,35 +7,38 @@
     <Filter Include="Game">
       <UniqueIdentifier>{d8dd993b-ada0-43bf-9b45-f3b43d4586d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Core">
+      <UniqueIdentifier>{66f5a7f0-6b84-4d23-9c25-53d5858e139f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DataTypes.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="DiceInvaders.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="RosteredPool.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Engine.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="HandleManager.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="Library.h">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="RosterPool.h">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineTypes.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle.h">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityHandleManager.h">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HandleManager.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="ModelManager.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="RosteredPool.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
@@ -47,6 +50,15 @@
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityManager.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="RosterPool.cpp">
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityHandleManager.cpp">
+      <Filter>Engine\Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
