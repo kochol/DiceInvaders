@@ -3,6 +3,7 @@
 #include "DiceInvaders.h"
 #include <unordered_map>
 #include "HandleManager.h"
+#include "RosteredPool.h"
 
 namespace Engine
 {
@@ -30,10 +31,10 @@ namespace Engine
 		ComponentHandle transform;
 	};
 
-	struct Player : BaseComponent
+	struct ComponentType
 	{
-		float lastFired;
-		uint8_t health;
+		HandleHashMap<ComponentHandle> componentMap;
+		RosteredPool components;
 	};
 
 	struct Rocket : BaseComponent
@@ -74,15 +75,7 @@ namespace Engine
 
 		// these types are so rarely used
 		// use entity id as the key
-		HandleHashMap<ComponentHandle> playerMap;
-		HandleHashMap<ComponentHandle> rocketMap;
-		HandleHashMap<ComponentHandle> alienMap;
-		HandleHashMap<ComponentHandle> bombMap;
-
-		std::vector<Player> players;
-		std::vector<Rocket> rockets;
-		std::vector<Alien> aliens;
-		std::vector<Bomb> bombs;
+		std::vector<ComponentType> components;
 	};
 
 	struct Context

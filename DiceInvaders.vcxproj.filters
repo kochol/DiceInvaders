@@ -4,6 +4,9 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{e73f5f55-113d-49f2-b5f4-d96e318bd001}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{d8dd993b-ada0-43bf-9b45-f3b43d4586d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DataTypes.h">
@@ -20,6 +23,9 @@
     </ClInclude>
     <ClInclude Include="HandleManager.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
