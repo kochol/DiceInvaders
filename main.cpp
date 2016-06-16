@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "Engine.h"
+#include "Player.h"
 
 int APIENTRY WinMain(
 	HINSTANCE instance,
@@ -9,31 +10,24 @@ int APIENTRY WinMain(
 {
 	Engine::Context *ctx = Engine::Init(640, 480);
 
-	std::string playerSpriteName = "data/player.bmp";
-	Engine::ResourceHandle playerSpriteHandle = Engine::LoadSprite(ctx->system, ctx->resources, playerSpriteName);
-	Engine::Sprite playerSprite = Engine::LookupSprite(*ctx->resources, playerSpriteHandle);
-	
-	Engine::EntityHandle player = ctx->world->handleManager.Create();
-	Engine::ComponentHandle playerModel = Engine::CreateModel(ctx->world, player, playerSprite);
-
-	ctx->world->transforms[playerModel.index].y = 480 - 32;
-	ctx->world->transforms[playerModel.index].x = 320;
+	Engine::EntityHandle player = Game::CreatePlayer(ctx);
 
 	float lastTime = ctx->system->getElapsedTime();
-	while (ctx->system->update())
+	bool running = true;
+	while (running)
 	{
-		float newTime = ctx->system->getElapsedTime();
-		float move = (newTime - lastTime) * 160.0f;
+		const float newTime = ctx->system->getElapsedTime();
+		const float dt = newTime - lastTime;
 		lastTime = newTime;
 		
-		Engine::IDiceInvaders::KeyStatus keys;
+		Engine::KeyStatus keys;
 		ctx->system->getKeyStatus(keys);
-		if (keys.right)
-			ctx->world->transforms[playerModel.index].x += move;
-		else if (keys.left)
-			ctx->world->transforms[playerModel.index].x -= move;
+
+		Game::UpdatePlayerFromInput(dt, player, ctx->world, keys);
 
 		Engine::DrawModels(*ctx->world);
+
+		running = ctx->system->update();
 	}
 
 	Engine::Shutdown(ctx);

@@ -14,6 +14,13 @@ namespace Engine
 		virtual void draw(int x, int y) = 0;
 	};
 
+	struct KeyStatus
+	{
+		bool fire; // space
+		bool left; // left arrow
+		bool right; // right arrow
+	};
+
 	struct IDiceInvaders
 	{
 		// Destroys the dice invaders instance
@@ -36,13 +43,6 @@ namespace Engine
 
 		// Return the total time spent in the game, in seconds.
 		virtual float getElapsedTime() = 0;
-
-		struct KeyStatus
-		{
-			bool fire; // space
-			bool left; // left arrow
-			bool right; // right arrow
-		};
 
 		// Returns the keyboard status. If a flag is set, the corresponding key is being held down.
 		virtual void getKeyStatus(KeyStatus& keys) = 0;

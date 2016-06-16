@@ -31,8 +31,10 @@ namespace Engine
 		ComponentHandle transform;
 	};
 
-	struct ComponentType
+	struct ComponentManager
 	{
+		// these types are so rarely used
+		// use entity id as the key
 		HandleHashMap<ComponentHandle> componentMap;
 		RosteredPool components;
 	};
@@ -73,9 +75,7 @@ namespace Engine
 		std::vector<Sprite> sprites;
 		std::vector<Layer> layers;
 
-		// these types are so rarely used
-		// use entity id as the key
-		std::vector<ComponentType> components;
+		std::vector<ComponentManager> components;
 	};
 
 	struct Context

@@ -45,5 +45,8 @@
     <ClCompile Include="Resource.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

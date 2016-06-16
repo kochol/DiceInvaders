@@ -18,10 +18,9 @@ namespace Engine
 		RosteredPool();
 		void Init(const uint16_t _max_item_count, const size_t _item_size);
 		~RosteredPool();
+
 		uint16_t Alloc();
-
 		void Free(uint16_t handle);
-
 		void* Resolve(uint16_t handle) const;
 	};
 }

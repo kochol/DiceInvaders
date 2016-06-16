@@ -158,6 +158,7 @@
     <ClCompile Include="HandleManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelManager.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="RosteredPool.cpp" />
   </ItemGroup>
