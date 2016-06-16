@@ -3,7 +3,7 @@
 #include <vector>
 #include <unordered_map>
 
-namespace DiceInvaders
+namespace Engine
 {
 	struct Handle
 	{

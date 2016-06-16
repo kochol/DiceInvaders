@@ -2,9 +2,9 @@
 #include <cstdint>
 #include "DiceInvaders.h"
 #include <unordered_map>
-#include "EntityManager.h"
+#include "HandleManager.h"
 
-namespace DiceInvaders
+namespace Engine
 {
 	typedef Handle EntityHandle;
 	typedef Handle ComponentHandle;
@@ -67,7 +67,7 @@ namespace DiceInvaders
 		// uniformly indexed common components.
 		// component id can be used as a direct index on them
 		HandleManager handleManager;
-		HandleHashMap<ComponentHandle> entityMap;
+		HandleHashMap<ComponentHandle> modelMap;
 		std::vector<Transform> transforms;
 		std::vector<Sprite> sprites;
 		std::vector<Layer> layers;
@@ -90,5 +90,6 @@ namespace DiceInvaders
 		World *world;
 		Resources *resources;
 		IDiceInvaders *system;
+		int width, height;
 	};
 }

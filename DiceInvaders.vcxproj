@@ -148,14 +148,16 @@
   <ItemGroup>
     <ClInclude Include="DataTypes.h" />
     <ClInclude Include="DiceInvaders.h" />
-    <ClInclude Include="EntityManager.h" />
-    <ClInclude Include="ModelManager.h" />
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="HandleManager.h" />
     <ClInclude Include="RosteredPool.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="Core.cpp" />
+    <ClCompile Include="HandleManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelManager.cpp" />
+    <ClCompile Include="Resource.cpp" />
     <ClCompile Include="RosteredPool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

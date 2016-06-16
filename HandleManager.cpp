@@ -1,8 +1,8 @@
-#include "EntityManager.h"
+#include "HandleManager.h"
 #include <cassert>
 #include "DataTypes.h"
 
-namespace DiceInvaders
+namespace Engine
 {
 	Handle HandleManager::Create()
 	{

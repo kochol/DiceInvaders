@@ -1,81 +1,78 @@
-#include "ModelManager.h"
+#include "Engine.h"
 #include <cassert>
 
 #include "DiceInvaders.h"
 
-namespace DiceInvaders
+namespace Engine
 {
 	ComponentHandle CreateModel(World* const world, const EntityHandle handle, const Sprite sprite)
 	{
 		const ComponentHandle compHandle = { world->transforms.size(), 0 };
 
-		world->transforms.push_back({handle, 0.f, 0.f});
+		world->transforms.push_back({ handle, 0.f, 0.f });
 		world->sprites.push_back(sprite);
 		world->layers.push_back(0);
 
-		return handle;
+		return compHandle;
 	}
 
-	void DrawModels(const std::vector<Transform>& transforms, std::vector<Sprite>& sprites)
+	ComponentHandle LookupModel(const World &world, const EntityHandle handle)
 	{
-		assert(transforms.size() == sprites.size());
+		const auto compHandle = world.modelMap.find(handle);
+		assert(compHandle != world.modelMap.end());
+		return compHandle->second;
+	}
 
-		const uint16_t count = transforms.size();
+	void DestroyModel(World *const world, const ComponentHandle handle)
+	{
+		// TODO: make it deferred
+		assert(handle.index < world->modelMap.size());
+
+		const EntityHandle oldEntityHandle = world->transforms[handle.index].handle;
+		world->modelMap.erase(oldEntityHandle);
+
+		const uint32_t lastIndex = world->transforms.size() - 1;
+		world->transforms[handle.index] = world->transforms[lastIndex];
+		world->sprites[handle.index] = world->sprites[lastIndex];
+		world->layers[handle.index] = world->layers[lastIndex];
+
+		const EntityHandle newEntityHandle = world->transforms[handle.index].handle;
+		world->modelMap[newEntityHandle] = handle;
+
+		// TODO: update other comp model handles
+	}
+
+	void DrawModels(const World& world)
+	{
+		assert(world.transforms.size() == world.sprites.size());
+
+		const uint16_t count = world.transforms.size();
 		for (uint16_t i = 0; i < count; ++i)
 		{
-			sprites[i].sprite->draw(transforms[i].x, transforms[i].y);
+			world.sprites[i].sprite->draw(world.transforms[i].x, world.transforms[i].y);
 		}
 	}
 
-	void DetectCollisions(const std::vector<Transform>& transforms, std::vector<CollisionInfo>* collisions)
+	void DetectCollisions(const World& world, std::vector<CollisionInfo>* collisions)
 	{
 		assert(collisions != nullptr && collisions->empty());
 
 		const int size = 32;
-		const uint16_t count = transforms.size();
+		const uint16_t count = world.transforms.size();
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			for (uint16_t j = 0; j < i; ++j)
 			{
-				if (transforms[i].x < transforms[j].x + size &&
-					transforms[i].x + size > transforms[j].x &&
-					transforms[i].y < transforms[j].y + size &&
-					transforms[i].y + size > transforms[j].y)
+				if (world.transforms[i].x < world.transforms[j].x + size &&
+					world.transforms[i].x + size > world.transforms[j].x &&
+					world.transforms[i].y < world.transforms[j].y + size &&
+					world.transforms[i].y + size > world.transforms[j].y)
 				{
 					collisions->push_back(CollisionInfo{ i, j });
 				}
 
 			}
 		}
-	}
-
-	ResourceHandle LoadSprite(IDiceInvaders *const system, Resources *const resources, const std::string& name)
-	{
-		ISprite *const sprite = system->createSprite(name.c_str());
-		assert(sprite != nullptr);
-
-		const ResourceHandle handle = resources->handleManager.Create();
-		resources->spriteMap[handle] = { sprite };
-
-		return handle;
-	}
-
-	Sprite LookupSprite(const Resources& resources, const ResourceHandle handle)
-	{
-		const auto sprite = resources.spriteMap.find(handle);
-		assert(sprite != resources.spriteMap.end());
-
-		return sprite->second;
-	}
-
-	void DestroySprite(const IDiceInvaders *const system, Resources *const resources, ResourceHandle handle)
-	{
-		const auto sprite = resources->spriteMap.find(handle);
-		assert(sprite != resources->spriteMap.end());
-
-		sprite->second.sprite->destroy();
-		resources->spriteMap.erase(handle);
-		resources->handleManager.Destroy(handle);
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace DiceInvaders
+namespace Engine
 {
 	class RosteredPool
 	{

@@ -3,7 +3,7 @@
 #include <cassert>
 #include <utility>
 
-namespace DiceInvaders
+namespace Engine
 {
 	RosteredPool::RosteredPool() :
 		buffer(nullptr),
