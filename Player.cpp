@@ -4,14 +4,14 @@ namespace Game
 {
 	void InitPlayerManager(Engine::ComponentManager* const manager)
 	{
-		manager->components.Init(1, sizeof(Player));
+		manager->components.Init(1, { sizeof(Player) });
 	}
 
 	void UpdatePlayerFromInput(Engine::ComponentManager* const manager)
 	{
 		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
 
-		Player *const playerCompData = reinterpret_cast<Player* const>(manager->components.Resolve(0));
+		Player *const playerCompData = manager->components.Resolve<Player>(0);
 
 		const float move = frame_data->dt * 160.0f;
 
@@ -36,7 +36,7 @@ namespace Game
 		playerComp.header.layer = player.header.layer;
 		playerComp.header.type = manager->type;
 
-		Player *const playerCompData = reinterpret_cast<Player* const>(manager->components.Resolve(0));
+		Player *const playerCompData = manager->components.Resolve<Player>(0);
 		playerCompData->entity = player;
 		playerCompData->model = model;
 		playerCompData->health = 3;

@@ -14,19 +14,14 @@ namespace Engine
 		indexes(nullptr)
 	{}
 
-	void RosterPool::Init(const uint16_t _max_item_count, const size_t _item_size)
+	void RosterPool::Init(const uint16_t _max_item_count, std::initializer_list<size_t> _item_size)
 	{
-		Init(1, _max_item_count, &_item_size);
-	}
-
-	void RosterPool::Init(const uint8_t _buffer_count, const uint16_t _max_item_count, const size_t *const _item_size)
-	{
-		buffer_count = _buffer_count;
-		item_size = new size_t[_buffer_count];
-		buffer = new uint8_t*[_buffer_count];
+		buffer_count = _item_size.size();
+		item_size = new size_t[buffer_count];
+		buffer = new uint8_t*[buffer_count];
 		for (uint8_t i = 0; i < buffer_count; ++i)
 		{
-			item_size[i] = _item_size[i];
+			item_size[i] = _item_size.begin()[i];
 			buffer[i] = reinterpret_cast<uint8_t*>(malloc(_max_item_count * item_size[i]));
 		}
 
@@ -40,7 +35,12 @@ namespace Engine
 
 	RosterPool::~RosterPool()
 	{
-		free(buffer);
+		for (uint8_t i = 0; i < buffer_count; ++i)
+			free(buffer[i]);
+
+		delete buffer;
+		delete item_size;
+
 		free(indexes);
 	}
 

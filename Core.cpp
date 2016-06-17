@@ -43,7 +43,7 @@ namespace Engine
 		_context->system->init(config.screen_width, config.screen_height);
 
 		_context->resources = new Resources;
-		_context->resources->handleManager.Init(10);
+		_context->resources->handleManager.Init(10, { sizeof(ResourceHandle) });
 
 		_context->world = new World;
 		
@@ -122,7 +122,7 @@ namespace Engine
 		Layer *const layer = new Layer;
 
 		layer->id = layer_id;
-		layer->models.Init(max_items);
+		layer->models.Init(max_items, { sizeof(Transform), sizeof(ResourceHandle) });
 
 		g_context->world->layers.insert(std::make_pair(layer_id, layer));
 	}

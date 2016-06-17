@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 #include "Library.h"
 #include <unordered_map>
 #include "EntityHandleManager.h"
@@ -53,7 +52,7 @@ namespace Engine
 
 	struct Resources
 	{
-		RosterPoolTyped<ResourceHandle> handleManager;
+		RosterPool handleManager;
 		// store all loaded sprites
 		HandleHashMap<ResourceHandle, ISprite*> spriteMap;
 	};
@@ -61,7 +60,7 @@ namespace Engine
 	struct Layer
 	{
 		LayerId id;
-		RosterPoolPairTyped<Transform, ResourceHandle> models;
+		RosterPool models;
 	};
 
 	struct World

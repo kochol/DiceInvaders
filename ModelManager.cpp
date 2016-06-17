@@ -16,8 +16,8 @@ namespace Engine
 		compHandle.header.type = ComponentType::MODEL;
 		compHandle.header.layer = handle.header.layer;
 
-		*layer->models.ResolveFirst(compHandle.index) = { handle, 0.f, 0.f };
-		*layer->models.ResolveSecond(compHandle.index) = sprite;
+		*layer->models.Resolve<Transform>(compHandle.index, 0) = { handle, 0.f, 0.f };
+		*layer->models.Resolve<ResourceHandle>(compHandle.index, 1) = sprite;
 		
 		world->modelMap[handle] = compHandle;
 
@@ -48,8 +48,8 @@ namespace Engine
 			const Layer *const layer = layerPair.second;
 
 			const uint16_t* indexes = layer->models.Indexes();
-			const Transform *const transforms = layer->models.DataFirst();
-			const ResourceHandle *const sprites = layer->models.DataSecond();
+			const Transform *const transforms = layer->models.Data<Transform>(0);
+			const ResourceHandle *const sprites = layer->models.Data<ResourceHandle>(1);
 			const uint16_t count = layer->models.Size();
 
 			for (uint16_t i = 0; i < count; ++i)
@@ -80,8 +80,8 @@ namespace Engine
 			const uint16_t *const first_indexes = first_layer->models.Indexes();
 			const uint16_t *const second_indexes = second_layer->models.Indexes();
 
-			Transform *const first_transforms = first_layer->models.DataFirst();
-			Transform *const second_transforms = second_layer->models.DataFirst();
+			Transform *const first_transforms = first_layer->models.Data<Transform>(0);
+			Transform *const second_transforms = second_layer->models.Data<Transform>(0);
 			
 			for (uint16_t i = 0; i < first_count; ++i)
 			{
