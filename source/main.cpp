@@ -29,8 +29,9 @@ int APIENTRY WinMain(
 	Engine::RegisterComponentType(Engine::ComponentType::ALIEN,
 	{
 		{ Engine::CallbackStage::INIT , Game::InitAlienManager },
-		{ Engine::CallbackStage::PRE_UPDATE , Game::SpawnAliens },
+		{ Engine::CallbackStage::PRE_UPDATE , Game::HandleAlienCollisions },
 		{ Engine::CallbackStage::REG_UPDATE , Game::UpdateAliens },
+		{ Engine::CallbackStage::POST_UPDATE , Game::SpawnAliens },
 		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownAliens }
 	});
 

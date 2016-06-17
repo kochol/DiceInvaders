@@ -43,6 +43,6 @@ namespace Engine
 
 	// Resources
 	ResourceHandle   LoadSprite(const std::string& name);
-	inline ISprite*  LookupSprite(const ResourceHandle handle) { return g_context->resources->spriteMap[handle]; }
+	inline ISprite*  LookupSprite(const ResourceHandle handle) { return *g_context->resources->spriteCache.Resolve<ISprite*>(handle.index); }
 	void             DestroySprite(ResourceHandle handle);
 }

@@ -50,9 +50,8 @@ namespace Engine
 
 	struct Resources
 	{
-		RosterPool handleManager;
 		// store all loaded sprites
-		HandleHashMap<ResourceHandle, ISprite*> spriteMap;
+		RosterPool spriteCache;
 	};
 
 	struct Layer

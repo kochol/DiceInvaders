@@ -44,19 +44,24 @@ namespace Engine
 	{
 		const World *const world = g_context->world;
 
+		ISprite **const iSprites = g_context->resources->spriteCache.Data<ISprite*>();
+		const uint16_t *const iSpritesIndexes = g_context->resources->spriteCache.Indexes();
+
 		for (const auto layerPair : world->layers)
 		{
 			const Layer *const layer = layerPair.second;
 
+			const uint16_t count = layer->models.Size();
+
 			const uint16_t* indexes = layer->models.Indexes();
 			const Transform *const transforms = layer->models.Data<Transform>(0);
 			const ResourceHandle *const sprites = layer->models.Data<ResourceHandle>(1);
-			const uint16_t count = layer->models.Size();
 
 			for (uint16_t i = 0; i < count; ++i)
 			{
 				const uint16_t index = indexes[i];
-				ISprite *const sprite = LookupSprite(sprites[index]);
+				const uint16_t iSpriteIndex = iSpritesIndexes[sprites[index].index];
+				ISprite *const sprite = iSprites[iSpriteIndex];
 				sprite->draw(static_cast<int>(transforms[index].x), static_cast<int>(transforms[index].y));
 			}
 		}

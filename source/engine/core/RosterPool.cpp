@@ -17,7 +17,7 @@ namespace Engine
 
 	void RosterPool::Init(const uint16_t _max_item_count, std::initializer_list<size_t> _item_size)
 	{
-		buffer_count = _item_size.size();
+		buffer_count = static_cast<uint8_t>(_item_size.size());
 
 		item_size = new size_t[buffer_count];
 		buffer = new uint8_t*[buffer_count];
@@ -30,8 +30,8 @@ namespace Engine
 		max_item_count = _max_item_count;
 		item_partition = 0;
 		
-		indexes = reinterpret_cast<uint16_t*>(malloc(_max_item_count * sizeof(uint16_t)));
-		rev_indexes = reinterpret_cast<uint16_t*>(malloc(_max_item_count * sizeof(uint16_t)));
+		indexes = new uint16_t[max_item_count];
+		rev_indexes = new uint16_t[max_item_count];
 		for (uint16_t i = 0; i < max_item_count; ++i)
 		{
 			indexes[i] = i;
@@ -47,8 +47,8 @@ namespace Engine
 		delete buffer;
 		delete item_size;
 
-		free(indexes);
-		free(rev_indexes);
+		delete indexes;
+		delete rev_indexes;
 	}
 
 	uint16_t RosterPool::Alloc()

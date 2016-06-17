@@ -10,6 +10,8 @@ namespace Game
 	};
 
 	void InitAlienManager(Engine::ComponentManager *const manager);
+
+	void HandleAlienCollisions(Engine::ComponentManager* const manager);
 	void UpdateAliens(Engine::ComponentManager* const manager);
 	void SpawnAliens(Engine::ComponentManager* const manager);
 

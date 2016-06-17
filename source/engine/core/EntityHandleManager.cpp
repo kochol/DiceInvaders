@@ -13,7 +13,7 @@ namespace Engine
 		}
 		else
 		{
-			handle.index = _salts.size();
+			handle.index = static_cast<uint16_t>(_salts.size());
 			_salts.push_back(0);
 		}
 

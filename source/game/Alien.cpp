@@ -17,7 +17,7 @@ namespace Game
 	{
 		manager->components.Init(100, { sizeof(Alien) });
 
-		_AlienManager *const data = new _AlienManager;
+		_AlienManager *const data = new _AlienManager();
 		
 		data->sprite[0] = Engine::LoadSprite("data/enemy1.bmp");
 		data->sprite[1] = Engine::LoadSprite("data/enemy2.bmp");
@@ -29,6 +29,29 @@ namespace Game
 		manager->customData = data;
 	}
 
+	void HandleAlienCollisions(Engine::ComponentManager* const manager)
+	{
+		_AlienManager *const data = reinterpret_cast<_AlienManager*>(manager->customData);
+		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
+
+		auto layerCollisions = frame_data->collisions.find(Engine::LayerId::ALIEN);
+
+		if (layerCollisions != frame_data->collisions.end())
+		{
+			for (auto entity : layerCollisions->second)
+			{
+				Engine::ComponentHandle component = manager->componentMap[entity];
+
+				Alien *const alien = manager->components.Resolve<Alien>(component.index);
+
+				Engine::DestroyModel(alien->model);
+				Engine::DestroyEntity(entity);
+				manager->components.Free(component.index);
+				manager->componentMap.erase(entity);
+			}
+		}
+	}
+
 	void UpdateAliens(Engine::ComponentManager* const manager)
 	{
 		_AlienManager *const data = reinterpret_cast<_AlienManager*>(manager->customData);
@@ -36,26 +59,9 @@ namespace Game
 
 		if (frame_data->time - data->lastMoved > 0.1f)
 		{
-			auto layerCollisions = frame_data->collisions.find(Engine::LayerId::ALIEN);
-
-			if (layerCollisions != frame_data->collisions.end())
-			{
-				for (auto entity : layerCollisions->second)
-				{
-					Engine::ComponentHandle component = manager->componentMap[entity];
-
-					Alien *const alien = manager->components.Resolve<Alien>(component.index);
-
-					Engine::DestroyModel(alien->model);
-					Engine::DestroyEntity(entity);
-					manager->components.Free(component.index);
-					manager->componentMap.erase(entity);
-				}
-			}
-
-			const uint16_t count = manager->components.Size();
-
 			data->lastMoved = frame_data->time;
+			const uint16_t count = manager->components.Size();
+			
 			data->currentSprite = 1 - data->currentSprite;
 
 			const uint16_t *const indexes = manager->components.Indexes();
@@ -69,10 +75,10 @@ namespace Game
 			const int16_t move_y = data->shouldChangeDirection ? 35 : 0;
 			//const Engine::ResourceHandle newSprite = data->sprite[data->currentSprite];
 
-			int min_x = Engine::g_context->config->screen_width;
-			int max_x = 0;
-			int min_y = Engine::g_context->config->screen_height;
-			int max_y = 0;
+			float min_x = static_cast<float>(Engine::g_context->config->screen_height);
+			float max_x = 0.f;
+			float min_y = static_cast<float>(Engine::g_context->config->screen_height);
+			float max_y = 0.f;
 
 			for (uint16_t i = 0; i < count; ++i)
 			{
@@ -90,7 +96,7 @@ namespace Game
 			}
 
 			data->shouldChangeDirection =
-				(data->moveDirection < 0 && min_x < 35) ||
+				(data->moveDirection < 0 && min_x < 35.f) ||
 				(data->moveDirection > 0 && max_x > Engine::g_context->config->screen_width - 52.5f);
 
 			if (data->shouldChangeDirection)
@@ -119,8 +125,8 @@ namespace Game
 
 				Engine::Transform *const transform = Engine::ResolveTransform(model);
 
-				transform->x = i * 35;
-				transform->y = j * 35;
+				transform->x = static_cast<float>(i * 35);
+				transform->y = static_cast<float>(j * 35);
 			}
 		}
 	}

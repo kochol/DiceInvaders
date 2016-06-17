@@ -12,10 +12,11 @@ namespace Engine
 		assert(sprite != nullptr);
 
 		ResourceHandle handle;
-		handle.index = resources->handleManager.Alloc();
+		handle.index = resources->spriteCache.Alloc();
 		handle.header.type = ResourceType::SPRITE;
 		handle.header.padding = 0;
-		resources->spriteMap[handle] = sprite;
+
+		*resources->spriteCache.Resolve<ISprite*>(handle.index) = sprite;
 
 		return handle;
 	}
@@ -24,8 +25,9 @@ namespace Engine
 	{
 		Resources *const resources = g_context->resources;
 
-		resources->spriteMap[handle]->destroy();
-		resources->spriteMap.erase(handle);
-		resources->handleManager.Free(handle.index);
+		ISprite *const sprite = LookupSprite(handle);
+		sprite->destroy();
+
+		resources->spriteCache.Free(handle.index);
 	}
 }

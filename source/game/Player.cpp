@@ -51,8 +51,8 @@ namespace Game
 		
 		Engine::Transform *const transform = Engine::ResolveTransform(model);
 
-		transform->x = Engine::g_context->config->screen_width / 2;
-		transform->y = Engine::g_context->config->screen_height - 32;
+		transform->x = Engine::g_context->config->screen_width / 2.f;
+		transform->y = Engine::g_context->config->screen_height - 32.f;
 
 		return entity;
 	}

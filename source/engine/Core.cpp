@@ -43,7 +43,7 @@ namespace Engine
 		_context->system->init(config.screen_width, config.screen_height);
 
 		_context->resources = new Resources;
-		_context->resources->handleManager.Init(10, { sizeof(ResourceHandle) });
+		_context->resources->spriteCache.Init(10, { sizeof(ISprite*) });
 
 		_context->world = new World;
 		
