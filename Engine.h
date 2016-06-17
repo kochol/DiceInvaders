@@ -9,6 +9,7 @@ namespace Engine
 	void             Shutdown();
 	bool      ShouldRun();
 
+	void InitComponents();
 
 	void PreUpdate();
 	void RegUpdate();
@@ -20,7 +21,8 @@ namespace Engine
 	void AddLayer(const LayerId layer_id, const uint16_t max_entities);
 
 	// Component
-	void RegisterComponentType(ComponentType type, const ComponentManager::Callbacks callbacks);
+	void RegisterComponentType(ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks);
+	inline ComponentManager* GetComponentManager(ComponentType type) { return g_context->world->components[type]; }
 
 	// Entity
 	EntityHandle        CreateEntity(const LayerId layer);

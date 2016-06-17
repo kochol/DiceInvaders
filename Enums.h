@@ -30,11 +30,13 @@ namespace Engine
 		BOMB = 5
 	};
 
-	enum struct UpdateStage
+	enum struct CallbackStage
 	{
 		NONE = 0,
-		PRE_UPDATE = 1,
-		REG_UPDATE = 2,
-		POST_UPDATE = 3
+		INIT = 1,
+		PRE_UPDATE = 2,
+		REG_UPDATE = 3,
+		POST_UPDATE = 4,
+		SHUTDOWN = 5
 	};
 }

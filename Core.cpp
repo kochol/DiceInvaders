@@ -19,6 +19,19 @@ namespace Engine
 
 	// Internal function forward decls
 	static void _LoadLibrary(_Context *const _context);
+	static void ExecuteComponentCallbacks(CallbackStage stage)
+	{
+		for (auto managerPair : g_context->world->components)
+		{
+			ComponentManager *const manager = managerPair.second;
+
+			const auto callback = manager->callbacks.find(stage);
+			if (callback == manager->callbacks.end())
+				continue;
+
+			callback->second(manager);
+		}
+	}
 
 	void Init(const Config& config)
 	{
@@ -55,6 +68,8 @@ namespace Engine
 	{
 		_Context *const _context = reinterpret_cast<_Context*>(g_context);
 
+		ExecuteComponentCallbacks(CallbackStage::SHUTDOWN);
+
 		_context->system->destroy();
 		FreeLibrary(_context->_lib);
 	}
@@ -65,18 +80,9 @@ namespace Engine
 		return _context->_running;
 	}
 
-	static void UpdateComponents(UpdateStage stage)
+	void InitComponents()
 	{
-		for (auto managerPair : g_context->world->components)
-		{
-			ComponentManager *const manager = managerPair.second;
-
-			const auto callback = manager->callbacks.updateCallbacks.find(stage);
-			if (callback == manager->callbacks.updateCallbacks.end())
-				continue;
-
-			callback->second(manager);
-		}
+		ExecuteComponentCallbacks(CallbackStage::INIT);
 	}
 
 	void PreUpdate()
@@ -93,12 +99,12 @@ namespace Engine
 
 		_context->system->getKeyStatus(_frame_data->keys);
 
-		UpdateComponents(UpdateStage::PRE_UPDATE);
+		ExecuteComponentCallbacks(CallbackStage::PRE_UPDATE);
 	}
 
 	void RegUpdate()
 	{
-		UpdateComponents(UpdateStage::REG_UPDATE);
+		ExecuteComponentCallbacks(CallbackStage::REG_UPDATE);
 	}
 
 	void PostUpdate()
@@ -106,7 +112,7 @@ namespace Engine
 		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
 		_context->_running = g_context->system->update();
 
-		UpdateComponents(UpdateStage::POST_UPDATE);
+		ExecuteComponentCallbacks(CallbackStage::POST_UPDATE);
 	}
 
 	void AddLayer(const LayerId layer_id, const uint16_t max_items)
@@ -121,7 +127,7 @@ namespace Engine
 		g_context->world->layers.insert(std::make_pair(layer_id, layer));
 	}
 
-	void RegisterComponentType(ComponentType type, const ComponentManager::Callbacks callbacks)
+	void RegisterComponentType(ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks)
 	{
 		assert(g_context->world->components.find(type) == g_context->world->components.end());
 
@@ -129,9 +135,6 @@ namespace Engine
 
 		manager->type = type;
 		manager->callbacks = callbacks;
-
-		if (manager->callbacks.initCallback != nullptr)
-			manager->callbacks.initCallback(manager);
 
 		g_context->world->components.insert(std::make_pair(type, manager));
 	}

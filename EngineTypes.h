@@ -28,20 +28,8 @@ namespace Engine
 		HandleHashMap<EntityHandle, ComponentHandle> componentMap;
 		RosterPool components;
 
-		struct Callbacks
-		{
-			typedef void(*Callback)(ComponentManager *const);
-			Callback initCallback;
-			std::unordered_map<UpdateStage, Callback> updateCallbacks;
-			Callback shutdownCallback;
-
-			Callbacks() :
-				initCallback(nullptr),
-				shutdownCallback(nullptr)
-			{}
-		};
-
-		Callbacks callbacks;
+		typedef void(*Callback)(ComponentManager *const);
+		std::unordered_map<CallbackStage, Callback> callbacks;
 	};
 
 	struct Rocket : BaseComponent

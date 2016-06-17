@@ -23,8 +23,9 @@ namespace Game
 			transform->x -= move;
 	}
 
-	Engine::EntityHandle CreatePlayer(Engine::ComponentManager* const manager)
+	Engine::EntityHandle CreatePlayer()
 	{
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::ComponentType::PLAYER);
 		const Engine::EntityHandle player = Engine::CreateEntity(Engine::LayerId::PLAYER);
 		const std::string sprite_name = "data/player.bmp";
 		const Engine::ResourceHandle sprite = Engine::LoadSprite(sprite_name);
