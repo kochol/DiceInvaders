@@ -2,13 +2,20 @@
 
 namespace Game
 {
-	void UpdatePlayerFromInput(const Engine::EntityHandle player)
+	void InitPlayerManager(Engine::ComponentManager* const manager)
+	{
+		manager->components.Init(1, sizeof(Player));
+	}
+
+	void UpdatePlayerFromInput(Engine::ComponentManager* const manager)
 	{
 		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
+
+		Player *const playerCompData = reinterpret_cast<Player* const>(manager->components.Resolve(0));
+
 		const float move = frame_data->dt * 160.0f;
 
-		const Engine::ComponentHandle model = Engine::LookupModel(player);
-		Engine::Transform *const transform = Engine::ResolveTransform(model);
+		Engine::Transform *const transform = Engine::ResolveTransform(playerCompData->model);
 
 		if (frame_data->keys.right)
 			transform->x += move;
@@ -16,18 +23,28 @@ namespace Game
 			transform->x -= move;
 	}
 
-	Engine::EntityHandle CreatePlayer()
+	Engine::EntityHandle CreatePlayer(Engine::ComponentManager* const manager)
 	{
+		const Engine::EntityHandle player = Engine::CreateEntity(Engine::LayerId::PLAYER);
 		const std::string sprite_name = "data/player.bmp";
 		const Engine::ResourceHandle sprite = Engine::LoadSprite(sprite_name);
-
-		const Engine::EntityHandle player = Engine::CreateEntity(Engine::LayerId::PLAYER);
 		const Engine::ComponentHandle model = Engine::CreateModel(player, sprite);
 
+		Engine::ComponentHandle playerComp;
+		playerComp.index = manager->components.Alloc();
+		playerComp.header.layer = player.header.layer;
+		playerComp.header.type = manager->type;
+
+		Player *const playerCompData = reinterpret_cast<Player* const>(manager->components.Resolve(0));
+		playerCompData->entity = player;
+		playerCompData->model = model;
+		playerCompData->health = 3;
+		playerCompData->lastFired = 0.f;
+		
 		Engine::Transform *const transform = Engine::ResolveTransform(model);
 
-		transform->y = Engine::g_context->config->screen_height - 32;
 		transform->x = Engine::g_context->config->screen_width / 2;
+		transform->y = Engine::g_context->config->screen_height - 32;
 
 		return player;
 	}

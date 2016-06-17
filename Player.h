@@ -12,7 +12,7 @@ namespace Game
 
 	void InitPlayerManager(Engine::ComponentManager *const manager);
 
-	Engine::EntityHandle CreatePlayer();
+	Engine::EntityHandle CreatePlayer(Engine::ComponentManager* const manager);
 
-	void UpdatePlayerFromInput(const Engine::EntityHandle player);
+	void UpdatePlayerFromInput(Engine::ComponentManager* const manager);
 }

@@ -65,6 +65,20 @@ namespace Engine
 		return _context->_running;
 	}
 
+	static void UpdateComponents(UpdateStage stage)
+	{
+		for (auto managerPair : g_context->world->components)
+		{
+			ComponentManager *const manager = managerPair.second;
+
+			const auto callback = manager->callbacks.updateCallbacks.find(stage);
+			if (callback == manager->callbacks.updateCallbacks.end())
+				continue;
+
+			callback->second(manager);
+		}
+	}
+
 	void PreUpdate()
 	{
 		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
@@ -78,17 +92,21 @@ namespace Engine
 		_frame_data->_prev_time = time;
 
 		_context->system->getKeyStatus(_frame_data->keys);
+
+		UpdateComponents(UpdateStage::PRE_UPDATE);
 	}
 
 	void RegUpdate()
 	{
-		
+		UpdateComponents(UpdateStage::REG_UPDATE);
 	}
 
 	void PostUpdate()
 	{
 		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
 		_context->_running = g_context->system->update();
+
+		UpdateComponents(UpdateStage::POST_UPDATE);
 	}
 
 	void AddLayer(const LayerId layer_id, const uint16_t max_items)
@@ -101,5 +119,20 @@ namespace Engine
 		layer->models.Init(max_items);
 
 		g_context->world->layers.insert(std::make_pair(layer_id, layer));
+	}
+
+	void RegisterComponentType(ComponentType type, const ComponentManager::Callbacks callbacks)
+	{
+		assert(g_context->world->components.find(type) == g_context->world->components.end());
+
+		ComponentManager *const manager = new ComponentManager;
+
+		manager->type = type;
+		manager->callbacks = callbacks;
+
+		if (manager->callbacks.initCallback != nullptr)
+			manager->callbacks.initCallback(manager);
+
+		g_context->world->components.insert(std::make_pair(type, manager));
 	}
 }

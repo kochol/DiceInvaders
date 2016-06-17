@@ -18,15 +18,18 @@ int APIENTRY WinMain(
 	Engine::AddLayer(Engine::LayerId::BOMB, 100);
 	Engine::AddLayer(Engine::LayerId::ROCKET, 100);
 
-	Engine::EntityHandle player = Game::CreatePlayer();
+	Engine::ComponentManager::Callbacks callbacks;
+	callbacks.initCallback = Game::InitPlayerManager;
+	callbacks.updateCallbacks[Engine::UpdateStage::REG_UPDATE] = Game::UpdatePlayerFromInput;
+	Engine::RegisterComponentType(Engine::ComponentType::PLAYER, callbacks);
 
-	bool running = true;
+	Engine::EntityHandle player = Game::CreatePlayer(Engine::g_context->world->components[Engine::ComponentType::PLAYER]);
+
 	while (Engine::ShouldRun())
 	{
 		Engine::PreUpdate();
 
 		Engine::RegUpdate();
-		Game::UpdatePlayerFromInput(player);
 
 		Engine::Render();
 

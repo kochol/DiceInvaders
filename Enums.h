@@ -29,4 +29,12 @@ namespace Engine
 		ROCKET = 4,
 		BOMB = 5
 	};
+
+	enum struct UpdateStage
+	{
+		NONE = 0,
+		PRE_UPDATE = 1,
+		REG_UPDATE = 2,
+		POST_UPDATE = 3
+	};
 }

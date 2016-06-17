@@ -19,6 +19,9 @@ namespace Engine
 
 	void AddLayer(const LayerId layer_id, const uint16_t max_entities);
 
+	// Component
+	void RegisterComponentType(ComponentType type, const ComponentManager::Callbacks callbacks);
+
 	// Entity
 	EntityHandle        CreateEntity(const LayerId layer);
 	void                DestroyEntity(const EntityHandle handle);

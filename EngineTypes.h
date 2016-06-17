@@ -2,10 +2,8 @@
 #include <cstdint>
 #include "Library.h"
 #include <unordered_map>
-#include <map>
 #include "EntityHandleManager.h"
 #include "RosterPool.h"
-
 
 namespace Engine
 {
@@ -18,8 +16,8 @@ namespace Engine
 
 	struct BaseComponent
 	{
-		EntityHandle handle;
-		ComponentHandle transform;
+		EntityHandle entity;
+		ComponentHandle model;
 	};
 
 	struct ComponentManager
@@ -29,6 +27,21 @@ namespace Engine
 		// use entity id as the key
 		HandleHashMap<EntityHandle, ComponentHandle> componentMap;
 		RosterPool components;
+
+		struct Callbacks
+		{
+			typedef void(*Callback)(ComponentManager *const);
+			Callback initCallback;
+			std::unordered_map<UpdateStage, Callback> updateCallbacks;
+			Callback shutdownCallback;
+
+			Callbacks() :
+				initCallback(nullptr),
+				shutdownCallback(nullptr)
+			{}
+		};
+
+		Callbacks callbacks;
 	};
 
 	struct Rocket : BaseComponent
@@ -70,9 +83,9 @@ namespace Engine
 		EntityHandleManager handleManager;
 		HandleHashMap<EntityHandle, ComponentHandle> modelMap;
 
-		std::map<LayerId, Layer*> layers;
+		std::unordered_map<LayerId, Layer*> layers;
 
-		std::vector<ComponentManager> components;
+		std::unordered_map<ComponentType, ComponentManager*> components;
 
 		std::vector<std::pair<LayerId, LayerId>> collisionMasks;
 	};
