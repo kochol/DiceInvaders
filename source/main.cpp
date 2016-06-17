@@ -1,7 +1,7 @@
 #include <windows.h>
-#include "Engine.h"
-#include "Player.h"
-#include "Alien.h"
+#include "engine/Engine.h"
+#include "game/Player.h"
+#include "game/Alien.h"
 
 int APIENTRY WinMain(
 	HINSTANCE instance,

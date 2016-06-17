@@ -18,6 +18,28 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\engine\Core.cpp" />
+    <ClCompile Include="source\engine\core\EntityHandleManager.cpp" />
+    <ClCompile Include="source\engine\core\RosterPool.cpp" />
+    <ClCompile Include="source\engine\EntityManager.cpp" />
+    <ClCompile Include="source\engine\ModelManager.cpp" />
+    <ClCompile Include="source\engine\Resource.cpp" />
+    <ClCompile Include="source\game\Alien.cpp" />
+    <ClCompile Include="source\game\Player.cpp" />
+    <ClCompile Include="source\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\engine\core\EntityHandleManager.h" />
+    <ClInclude Include="source\engine\core\Enums.h" />
+    <ClInclude Include="source\engine\core\Handle.h" />
+    <ClInclude Include="source\engine\core\Library.h" />
+    <ClInclude Include="source\engine\core\RosterPool.h" />
+    <ClInclude Include="source\engine\Engine.h" />
+    <ClInclude Include="source\engine\EngineTypes.h" />
+    <ClInclude Include="source\game\Alien.h" />
+    <ClInclude Include="source\game\Player.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AA96131E-A07B-464A-A210-BB16AF4388E7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -145,28 +167,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="Alien.h" />
-    <ClInclude Include="EngineTypes.h" />
-    <ClInclude Include="Enums.h" />
-    <ClInclude Include="Handle.h" />
-    <ClInclude Include="Library.h" />
-    <ClInclude Include="Engine.h" />
-    <ClInclude Include="EntityHandleManager.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="RosterPool.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Alien.cpp" />
-    <ClCompile Include="Core.cpp" />
-    <ClCompile Include="EntityManager.cpp" />
-    <ClCompile Include="EntityHandleManager.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="ModelManager.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Resource.cpp" />
-    <ClCompile Include="RosterPool.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

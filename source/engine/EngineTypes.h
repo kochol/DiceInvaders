@@ -1,9 +1,9 @@
 #pragma once
-#include "Library.h"
+#include "core/Library.h"
 #include <unordered_map>
 #include <unordered_set>
-#include "EntityHandleManager.h"
-#include "RosterPool.h"
+#include "core/EntityHandleManager.h"
+#include "core/RosterPool.h"
 
 namespace Engine
 {
