@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include <cassert>
+#include <random>
 
 namespace Engine
 {
@@ -7,6 +8,9 @@ namespace Engine
 	struct _Context : Context
 	{
 		HMODULE _lib;
+		std::random_device *rnd_device;
+		std::mt19937 *rnd_engine;
+		std::uniform_real_distribution<float> *rnd_dist;
 		bool _running;
 	};
 
@@ -51,6 +55,10 @@ namespace Engine
 		_frame_data->_prev_time = _context->system->getElapsedTime();
 		_context->frame_data = reinterpret_cast<FrameData*>(_frame_data);
 
+		_context->rnd_device = new std::random_device();
+		_context->rnd_engine = new std::mt19937((*_context->rnd_device)());
+		_context->rnd_dist = new std::uniform_real_distribution<float>(0.f, 1.f);
+
 		g_context = reinterpret_cast<Context*>(_context);
 	}
 
@@ -72,8 +80,18 @@ namespace Engine
 
 		ExecuteComponentCallbacks(CallbackStage::SHUTDOWN);
 
+		delete _context->rnd_device;
+		delete _context->rnd_engine;
+		delete _context->rnd_dist;
+
 		_context->system->destroy();
 		FreeLibrary(_context->_lib);
+	}
+
+	float GetRandom()
+	{
+		_Context *const _context = reinterpret_cast<_Context*>(g_context);
+		return (*_context->rnd_dist)(*_context->rnd_engine);
 	}
 
 	bool ShouldRun()
@@ -124,7 +142,7 @@ namespace Engine
 		Layer *const layer = new Layer;
 
 		layer->id = layer_id;
-		layer->models.Init(max_items, { sizeof(Transform), sizeof(ResourceHandle), sizeof(CollisionInfo) });
+		layer->models.Init(max_items, { sizeof(Transform), sizeof(ResourceHandle), sizeof(Collider) });
 
 		g_context->world->layers.insert(std::make_pair(layer_id, layer));
 	}

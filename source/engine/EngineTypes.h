@@ -27,10 +27,6 @@ namespace Engine
 		void *customData;
 	};
 
-	struct Bomb : BaseComponent
-	{
-	};
-
 	struct Resources
 	{
 		// store all loaded sprites
@@ -44,7 +40,7 @@ namespace Engine
 		float y;
 	};
 
-	struct CollisionInfo
+	struct Collider
 	{
 		LayerId collidedLayer;
 		union

@@ -20,6 +20,8 @@ namespace Engine
 
 	void AddLayer(const LayerId layer_id, const uint16_t max_entities);
 
+	float GetRandom();
+
 	// Component
 	void RegisterComponentType(ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks);
 	inline ComponentManager* GetComponentManager(const ComponentType type) { return g_context->world->components[type]; }
@@ -49,6 +51,7 @@ namespace Engine
 	void                DestroyModel(const ComponentHandle handle);
 	inline  Transform*  ResolveTransform(const ComponentHandle handle) { return ResolveLayer(handle)->models.Resolve<Transform>(handle.index, 0); }
 	inline  ResourceHandle*  ResolveSprite(const ComponentHandle handle) { return ResolveLayer(handle)->models.Resolve<ResourceHandle>(handle.index, 1); }
+	inline  Collider*  ResolveCollider(const ComponentHandle handle) { return ResolveLayer(handle)->models.Resolve<Collider>(handle.index, 2); }
 
 	// Resources
 	ResourceHandle   LoadSprite(const std::string& name);

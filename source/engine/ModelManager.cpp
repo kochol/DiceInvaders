@@ -18,8 +18,10 @@ namespace Engine
 
 		*layer->models.Resolve<Transform>(compHandle.index, 0) = { handle, 0, 0 };
 		*layer->models.Resolve<ResourceHandle>(compHandle.index, 1) = sprite;
-		layer->models.Resolve<CollisionInfo>(compHandle.index, 2)->collidedLayer = LayerId::NONE;
-		layer->models.Resolve<CollisionInfo>(compHandle.index, 2)->out.any = 0;
+
+		Collider *const collision_info = layer->models.Resolve<Collider>(compHandle.index, 2);
+		collision_info->collidedLayer = LayerId::NONE;
+		collision_info->out.any = 0;
 		
 		world->modelMap[handle] = compHandle;
 
@@ -89,8 +91,8 @@ namespace Engine
 			Transform *const first_transforms = first_layer->models.Data<Transform>(0);
 			Transform *const second_transforms = second_layer->models.Data<Transform>(0);
 
-			CollisionInfo *const first_collisions = first_layer->models.Data<CollisionInfo>(2);
-			CollisionInfo *const second_collisions = second_layer->models.Data<CollisionInfo>(2);
+			Collider *const first_collisions = first_layer->models.Data<Collider>(2);
+			Collider *const second_collisions = second_layer->models.Data<Collider>(2);
 
 			const int screen_width = g_context->config->screen_width;
 			const int screen_height = g_context->config->screen_height;

@@ -37,7 +37,7 @@ namespace Game
 		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LayerId::ALIEN);
 		const uint16_t *const indexes = layer->models.Indexes();
 		Engine::Transform *const transforms = layer->models.Data<Engine::Transform>(0);
-		Engine::CollisionInfo *const collisions = layer->models.Data<Engine::CollisionInfo>(2);
+		Engine::Collider *const collisions = layer->models.Data<Engine::Collider>(2);
 
 
 		for (uint16_t i = 0; i < count; ++i)
@@ -72,10 +72,14 @@ namespace Game
 		_AlienManager *const data = reinterpret_cast<_AlienManager*>(manager->customData);
 		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
 
-		if (frame_data->time - data->lastMoved > 0.1f)
+		const float delay = 0.1f + (manager->components.Size() / 50.f);
+
+		if (frame_data->time - data->lastMoved > delay)
 		{
 			data->lastMoved = frame_data->time;
 			const uint16_t count = manager->components.Size();
+
+			const float bombDropChance = 1.5f / static_cast<float>(count + 10);
 			
 			data->currentSprite = 1 - data->currentSprite;
 
@@ -88,7 +92,7 @@ namespace Game
 
 			const float move_x = data->shouldChangeDirection ? 0.f : 35.f * data->moveDirection;
 			const float move_y = data->shouldChangeDirection ? 35.f : 0.f;
-			//const Engine::ResourceHandle newSprite = data->sprite[data->currentSprite];
+			const Engine::ResourceHandle newSprite = data->sprite[data->currentSprite];
 
 			float min_x = static_cast<float>(Engine::g_context->config->screen_height);
 			float max_x = 0.f;
@@ -102,17 +106,25 @@ namespace Game
 
 				transforms[modelIndex].x += move_x;
 				transforms[modelIndex].y += move_y;
-				//sprites[modelIndex] = newSprite;
+				sprites[modelIndex] = newSprite;
 
 				min_x = min(min_x, transforms[modelIndex].x);
 				max_x = max(max_x, transforms[modelIndex].x);
 				min_y = min(min_y, transforms[modelIndex].y);
 				max_y = max(max_y, transforms[modelIndex].y);
+
+				const float rnd = Engine::GetRandom();
+				if (frame_data->time - aliens[index].lastDroped > 1.f &&
+					Engine::GetRandom() < bombDropChance)
+				{
+					aliens[index].lastDroped = frame_data->time;
+					SpawnBomb(transforms[modelIndex].x, transforms[modelIndex].y);
+				}
 			}
 
 			data->shouldChangeDirection =
 				(data->moveDirection < 0 && min_x < 35.f) ||
-				(data->moveDirection > 0 && max_x > Engine::g_context->config->screen_width - 52.5f);
+				(data->moveDirection > 0 && max_x > Engine::g_context->config->screen_width - 70.f);
 
 			if (data->shouldChangeDirection)
 				data->moveDirection = -data->moveDirection;
@@ -124,9 +136,9 @@ namespace Game
 		if (manager->components.Size() > 0)
 			return;
 
-		for (int16_t i = 0; i < 10; i ++)
+		for (int16_t i = 0; i < 11; i ++)
 		{
-			for (int16_t j = 0; j < 10; j++)
+			for (int16_t j = 0; j < 5; j++)
 			{
 				const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LayerId::ALIEN);
 				Engine::ResourceHandle sprite = reinterpret_cast<_AlienManager*>(manager->customData)->sprite[0];
@@ -141,7 +153,7 @@ namespace Game
 				Engine::Transform *const transform = Engine::ResolveTransform(model);
 
 				transform->x = static_cast<float>(i * 35);
-				transform->y = static_cast<float>(j * 35);
+				transform->y = static_cast<float>(j * 35) + 100;
 			}
 		}
 	}

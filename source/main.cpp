@@ -2,6 +2,7 @@
 #include "engine/Engine.h"
 #include "game/Player.h"
 #include "game/Alien.h"
+#include "game/Bomb.h"
 #include "game/Rocket.h"
 #include "game/Game.h"
 
@@ -12,8 +13,8 @@ int APIENTRY WinMain(
 	int commandShow)
 {
 	Engine::Config config;
-	config.screen_width = 800;
-	config.screen_height = 600;
+	config.screen_width = 500;
+	config.screen_height = 500;
 
 	Engine::Init(config);
 	Engine::AddLayer(Engine::LayerId::PLAYER, 1);
@@ -35,6 +36,14 @@ int APIENTRY WinMain(
 		{ Engine::CallbackStage::UPDATE , Game::UpdateAliens },
 		{ Engine::CallbackStage::POST_UPDATE , Game::SpawnAliens },
 		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownAlienManager }
+	});
+
+	Engine::RegisterComponentType(Engine::ComponentType::BOMB,
+	{
+		{ Engine::CallbackStage::INIT , Game::InitBombManager },
+		{ Engine::CallbackStage::PRE_UPDATE , Game::HandleBombCollisions },
+		{ Engine::CallbackStage::UPDATE , Game::UpdateBombs },
+		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownBombManager }
 	});
 
 	Engine::RegisterComponentType(Engine::ComponentType::ROCKET,

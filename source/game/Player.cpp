@@ -25,7 +25,7 @@ namespace Game
 
 		Player *const playerCompData = manager->components.Resolve<Player>(0);
 
-		const float move = frame_data->dt * 160.0f;
+		const float move = frame_data->dt * 300.0f;
 
 		Engine::Transform *const transform = Engine::ResolveTransform(playerCompData->model);
 
@@ -34,7 +34,7 @@ namespace Game
 		else if (frame_data->keys.left)
 			transform->x -= move;
 
-		if (frame_data->keys.fire && frame_data->time - playerCompData->lastFired > 0.05f)
+		if (frame_data->keys.fire && frame_data->time - playerCompData->lastFired > 0.25f)
 		{
 			playerCompData->lastFired = frame_data->time;
 			SpawnRocket(transform->x, transform->y - 35);

@@ -24,4 +24,10 @@ namespace Game
 	void ScorePlayer();
 
 	Engine::EntityHandle SpawnRocket(float x, float y);
+
+	Engine::EntityHandle SpawnBomb(float x, float y);
+
+	void StartGame();
+	void GameOver();
+
 }

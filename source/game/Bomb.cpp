@@ -1,28 +1,29 @@
-#include "Rocket.h"
+#include "Bomb.h"
 #include "Game.h"
 
 namespace Game
 {
-	struct _RocketManager
+	struct _BombManager
 	{
 		Engine::ResourceHandle sprite;
 	};
 
-	void InitRocketManager(Engine::ComponentManager *const manager)
+	void InitBombManager(Engine::ComponentManager *const manager)
 	{
-		manager->components.Init(100, { sizeof(Rocket) });
+		manager->components.Init(100, { sizeof(Bomb) });
 
-		_RocketManager *const data = new _RocketManager;
-		data->sprite = Engine::LoadSprite("data/rocket.bmp");
+		_BombManager *const data = new _BombManager;
+
+		data->sprite = Engine::LoadSprite("data/bomb.bmp");
 
 		manager->customData = data;
 	}
 
-	void HandleRocketCollisions(Engine::ComponentManager* const manager)
+	void HandleBombCollisions(Engine::ComponentManager* const manager)
 	{
 		uint16_t count = manager->components.Size();
 
-		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LayerId::ROCKET);
+		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LayerId::BOMB);
 		const uint16_t *const indexes = layer->models.Indexes();
 		Engine::Transform *const transforms = layer->models.Data<Engine::Transform>(0);
 		Engine::Collider *const collisions = layer->models.Data<Engine::Collider>(2);
@@ -35,8 +36,6 @@ namespace Game
 			if (collisions[index].collidedLayer != Engine::LayerId::NONE ||
 				collisions[index].out.top)
 			{
-				if(collisions[index].collidedLayer == Engine::LayerId::ALIEN)
-					ScorePlayer();
 
 				Engine::ComponentHandle component = manager->componentMap[transforms[index].entity];
 
@@ -55,43 +54,43 @@ namespace Game
 		}
 	}
 
-	void UpdateRockets(Engine::ComponentManager* const manager)
+	void UpdateBombs(Engine::ComponentManager* const manager)
 	{
 		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
 
 		const uint16_t count = manager->components.Size();
 
 		const uint16_t *const indexes = manager->components.Indexes();
-		Rocket *const rockets = manager->components.Data<Rocket>();
+		Bomb *const rockets = manager->components.Data<Bomb>();
 
-		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LayerId::ROCKET);
+		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LayerId::BOMB);
 		Engine::Transform *const transforms = layer->models.Data<Engine::Transform>(0);
 
-		const float move = frame_data->dt * 1000.f;
+		const float move = frame_data->dt * 200.f;
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			const uint16_t index = indexes[i];
 			const uint16_t modelIndex = rockets[index].model.index;
 
-			transforms[modelIndex].y -= move;
+			transforms[modelIndex].y += move;
 		}
 	}
 
-	void ShutdownRocketManager(Engine::ComponentManager* const manager)
+	void ShutdownBombManager(Engine::ComponentManager* const manager)
 	{
 		delete manager->customData;
 	}
 
-	Engine::EntityHandle SpawnRocket(float x, float y)
+	Engine::EntityHandle SpawnBomb(float x, float y)
 	{
-		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::ComponentType::ROCKET);
-		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LayerId::ROCKET);
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::ComponentType::BOMB);
+		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LayerId::BOMB);
 
-		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(manager->customData)->sprite;
+		Engine::ResourceHandle sprite = reinterpret_cast<_BombManager*>(manager->customData)->sprite;
 		const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
 
-		Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::ComponentType::ROCKET);
+		Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::ComponentType::BOMB);
 
 		Engine::BaseComponent *const componentData = manager->components.Resolve<Engine::BaseComponent>(component.index);
 		componentData->model = model;
