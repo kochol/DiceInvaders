@@ -44,11 +44,11 @@ namespace Engine
 		for (uint8_t i = 0; i < buffer_count; ++i)
 			free(buffer[i]);
 
-		delete buffer;
-		delete item_size;
+		delete[] buffer;
+		delete[] item_size;
 
-		delete indexes;
-		delete rev_indexes;
+		delete[] indexes;
+		delete[] rev_indexes;
 	}
 
 	uint16_t RosterPool::Alloc()
