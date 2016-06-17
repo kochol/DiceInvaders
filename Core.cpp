@@ -47,7 +47,9 @@ namespace Engine
 
 		_context->world = new World;
 		
-		_context->frame_data = new FrameData;
+		_FrameData *const _frame_data = new _FrameData;
+		_frame_data->_prev_time = _context->system->getElapsedTime();
+		_context->frame_data = reinterpret_cast<FrameData*>(_frame_data);
 
 		g_context = reinterpret_cast<Context*>(_context);
 	}
@@ -91,6 +93,7 @@ namespace Engine
 		_FrameData *const _frame_data = reinterpret_cast<_FrameData *const>(g_context->frame_data);
 
 		_frame_data->collisions.clear();
+		DetectCollisions();
 
 		const float time = _context->system->getElapsedTime();
 		_frame_data->time = time;
@@ -137,5 +140,22 @@ namespace Engine
 		manager->callbacks = callbacks;
 
 		g_context->world->components.insert(std::make_pair(type, manager));
+	}
+
+	ComponentHandle CreateComponent(const EntityHandle entity, const ComponentType type)
+	{
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(type);
+
+		Engine::ComponentHandle component;
+		component.index = manager->components.Alloc();
+		component.header.layer = entity.header.layer;
+		component.header.type = manager->type;
+
+		manager->componentMap[entity] = component;
+
+		BaseComponent *const componentData = manager->components.Resolve<BaseComponent>(component.index);
+		componentData->entity = entity;
+
+		return component;
 	}
 }

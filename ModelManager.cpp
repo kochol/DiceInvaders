@@ -16,7 +16,7 @@ namespace Engine
 		compHandle.header.type = ComponentType::MODEL;
 		compHandle.header.layer = handle.header.layer;
 
-		*layer->models.Resolve<Transform>(compHandle.index, 0) = { handle, 0.f, 0.f };
+		*layer->models.Resolve<Transform>(compHandle.index, 0) = { handle, 0, 0 };
 		*layer->models.Resolve<ResourceHandle>(compHandle.index, 1) = sprite;
 		
 		world->modelMap[handle] = compHandle;
@@ -26,13 +26,14 @@ namespace Engine
 
 	void DestroyModel(const ComponentHandle handle)
 	{
+		assert(handle.header.type == ComponentType::MODEL);
+
 		World *const world = g_context->world;
 
 		// TODO: make it deferred
-		assert(handle.index < world->modelMap.size());
 
 		const Transform *const transform = ResolveTransform(handle);
-		world->modelMap.erase(transform->handle);
+		world->modelMap.erase(transform->entity);
 
 		Layer *const layer = ResolveLayer(handle);
 
@@ -56,7 +57,7 @@ namespace Engine
 			{
 				const uint16_t index = indexes[i];
 				ISprite *const sprite = LookupSprite(sprites[index]);
-				sprite->draw(transforms[index].x, transforms[index].y);
+				sprite->draw(static_cast<int>(transforms[index].x), static_cast<int>(transforms[index].y));
 			}
 		}
 	}
@@ -65,7 +66,7 @@ namespace Engine
 	{
 		World *const world = g_context->world;
 
-		std::vector<CollisionInfo> *const collisions = &g_context->frame_data->collisions;
+		auto collisions = &g_context->frame_data->collisions;
 
 		const int size = 32;
 
@@ -100,11 +101,12 @@ namespace Engine
 					{
 						const CollisionInfo collision_info =
 						{
-							first_transform->handle,
-							second_transform->handle
+							first_transform->entity,
+							second_transform->entity
 						};
 
-						collisions->push_back(collision_info);
+						(*collisions)[collisionMask.first].push_back(first_transform->entity);
+						(*collisions)[collisionMask.second].push_back(second_transform->entity);
 					}
 				}
 			}

@@ -36,6 +36,9 @@
     <ClInclude Include="EntityHandleManager.h">
       <Filter>Engine\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Alien.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ModelManager.cpp">
@@ -59,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="EntityHandleManager.cpp">
       <Filter>Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Alien.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

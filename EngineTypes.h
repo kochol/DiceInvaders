@@ -1,6 +1,7 @@
 #pragma once
 #include "Library.h"
 #include <unordered_map>
+#include <unordered_set>
 #include "EntityHandleManager.h"
 #include "RosterPool.h"
 
@@ -8,7 +9,7 @@ namespace Engine
 {
 	struct Transform
 	{
-		EntityHandle handle;
+		EntityHandle entity;
 		float x;
 		float y;
 	};
@@ -29,15 +30,12 @@ namespace Engine
 
 		typedef void(*Callback)(ComponentManager *const);
 		std::unordered_map<CallbackStage, Callback> callbacks;
+
+		void *customData;
 	};
 
 	struct Rocket : BaseComponent
 	{
-	};
-
-	struct Alien : BaseComponent
-	{
-		float lastDroped;
 	};
 
 	struct Bomb : BaseComponent
@@ -83,7 +81,7 @@ namespace Engine
 		float time;
 		KeyStatus keys;
 
-		std::vector<CollisionInfo> collisions;
+		std::unordered_map<LayerId, std::vector<EntityHandle>> collisions;
 	};
 
 	struct Config

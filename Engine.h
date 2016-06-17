@@ -22,7 +22,9 @@ namespace Engine
 
 	// Component
 	void RegisterComponentType(ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks);
-	inline ComponentManager* GetComponentManager(ComponentType type) { return g_context->world->components[type]; }
+	inline ComponentManager* GetComponentManager(const ComponentType type) { return g_context->world->components[type]; }
+	ComponentHandle CreateComponent(const EntityHandle entity, const ComponentType type);
+	void DestroyComponent(const ComponentHandle component);
 
 	// Entity
 	EntityHandle        CreateEntity(const LayerId layer);
@@ -37,6 +39,7 @@ namespace Engine
 	inline ComponentHandle     LookupModel(const EntityHandle    handle) { return g_context->world->modelMap[handle]; }
 	void                DestroyModel(const ComponentHandle handle);
 	inline  Transform*  ResolveTransform(const ComponentHandle handle) { return ResolveLayer(handle)->models.Resolve<Transform>(handle.index, 0); }
+	inline  ResourceHandle*  ResolveSprite(const ComponentHandle handle) { return ResolveLayer(handle)->models.Resolve<ResourceHandle>(handle.index, 1); }
 
 	// Resources
 	ResourceHandle   LoadSprite(const std::string& name);

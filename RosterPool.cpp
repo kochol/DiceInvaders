@@ -53,7 +53,17 @@ namespace Engine
 	void RosterPool::Free(const uint16_t handle)
 	{
 		assert(handle < max_item_count);
-		std::swap(indexes[item_partition - 1], indexes[handle]);
-		--item_partition;
+
+		// TODO: WTF!!!
+		for(uint16_t i = 0; i < item_partition; i ++)
+		{
+			if (indexes[i] != handle)
+				continue;
+
+			std::swap(indexes[item_partition - 1], indexes[i]);
+			--item_partition;
+			return;
+		}
+		
 	}
 }

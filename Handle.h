@@ -27,15 +27,11 @@ namespace Engine
 			return *this;
 		}
 
-		/*size_t operator()(const TypedHandle& handle) const
+		TypedHandle& operator=(const TypedHandle& handle)
 		{
-			return handle._handle;
+			this->_handle = handle._handle;
+			return *this;
 		}
-
-		bool operator()(const TypedHandle& a, const TypedHandle& b) const
-		{
-			return a._handle == b._handle;
-		}*/
 	};
 
 	template<typename T1, typename T2>

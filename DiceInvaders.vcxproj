@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Alien.h" />
     <ClInclude Include="EngineTypes.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Handle.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="RosterPool.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Alien.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="EntityHandleManager.cpp" />
