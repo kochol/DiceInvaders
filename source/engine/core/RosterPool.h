@@ -8,16 +8,18 @@ namespace Engine
 	{
 	private:
 		uint8_t **buffer;
+		
 		uint8_t buffer_count;
 		size_t *item_size;
+
 		uint16_t max_item_count;
 		uint16_t item_partition;
 
 		// TODO: maintain two seperate sorted index segments
 		uint16_t* indexes;
+		uint16_t* rev_indexes;
 
 	public:
-
 		RosterPool();
 		void Init(const uint16_t _max_item_count, std::initializer_list<size_t> _item_size);
 		~RosterPool();
