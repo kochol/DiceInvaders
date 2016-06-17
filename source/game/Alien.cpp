@@ -1,6 +1,7 @@
 #include "Alien.h"
 #include <algorithm>
 #include <cassert>
+#include "Game.h"
 
 namespace Game
 {
@@ -31,23 +32,37 @@ namespace Game
 
 	void HandleAlienCollisions(Engine::ComponentManager* const manager)
 	{
-		_AlienManager *const data = reinterpret_cast<_AlienManager*>(manager->customData);
-		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
+		uint16_t count = manager->components.Size();
 
-		auto layerCollisions = frame_data->collisions.find(Engine::LayerId::ALIEN);
+		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LayerId::ALIEN);
+		const uint16_t *const indexes = layer->models.Indexes();
+		Engine::Transform *const transforms = layer->models.Data<Engine::Transform>(0);
+		Engine::CollisionInfo *const collisions = layer->models.Data<Engine::CollisionInfo>(2);
 
-		if (layerCollisions != frame_data->collisions.end())
+
+		for (uint16_t i = 0; i < count; ++i)
 		{
-			for (auto entity : layerCollisions->second)
+			const uint16_t index = indexes[i];
+
+			if (collisions[index].collidedLayer != Engine::LayerId::NONE ||
+				collisions[index].out.any)
 			{
-				Engine::ComponentHandle component = manager->componentMap[entity];
+				if (collisions[index].collidedLayer == Engine::LayerId::PLAYER)
+					DamagePlayer();
 
-				Alien *const alien = manager->components.Resolve<Alien>(component.index);
+				Engine::ComponentHandle component = manager->componentMap[transforms[index].entity];
 
-				Engine::DestroyModel(alien->model);
-				Engine::DestroyEntity(entity);
+				Engine::ComponentHandle model = Engine::GetComponentHandle(
+					index,
+					Engine::ComponentType::MODEL,
+					component.header.layer);
+
+				Engine::DestroyModel(model);
+				Engine::DestroyEntity(transforms[index].entity);
 				manager->components.Free(component.index);
-				manager->componentMap.erase(entity);
+				manager->componentMap.erase(transforms[index].entity);
+				--i;
+				--count;
 			}
 		}
 	}
@@ -71,8 +86,8 @@ namespace Game
 			Engine::Transform *const transforms = layer->models.Data<Engine::Transform>(0);
 			Engine::ResourceHandle *const sprites = layer->models.Data<Engine::ResourceHandle>(1);
 
-			const int16_t move_x = data->shouldChangeDirection ? 0 : 35 * data->moveDirection;
-			const int16_t move_y = data->shouldChangeDirection ? 35 : 0;
+			const float move_x = data->shouldChangeDirection ? 0.f : 35.f * data->moveDirection;
+			const float move_y = data->shouldChangeDirection ? 35.f : 0.f;
 			//const Engine::ResourceHandle newSprite = data->sprite[data->currentSprite];
 
 			float min_x = static_cast<float>(Engine::g_context->config->screen_height);
@@ -131,7 +146,7 @@ namespace Game
 		}
 	}
 
-	void ShutdownAliens(Engine::ComponentManager* const manager)
+	void ShutdownAlienManager(Engine::ComponentManager* const manager)
 	{
 		delete manager->customData;
 	}

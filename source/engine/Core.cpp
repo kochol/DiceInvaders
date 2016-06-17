@@ -92,7 +92,6 @@ namespace Engine
 		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
 		_FrameData *const _frame_data = reinterpret_cast<_FrameData *const>(g_context->frame_data);
 
-		_frame_data->collisions.clear();
 		DetectCollisions();
 
 		const float time = _context->system->getElapsedTime();
@@ -107,7 +106,7 @@ namespace Engine
 
 	void RegUpdate()
 	{
-		ExecuteComponentCallbacks(CallbackStage::REG_UPDATE);
+		ExecuteComponentCallbacks(CallbackStage::UPDATE);
 	}
 
 	void PostUpdate()
@@ -125,7 +124,7 @@ namespace Engine
 		Layer *const layer = new Layer;
 
 		layer->id = layer_id;
-		layer->models.Init(max_items, { sizeof(Transform), sizeof(ResourceHandle) });
+		layer->models.Init(max_items, { sizeof(Transform), sizeof(ResourceHandle), sizeof(CollisionInfo) });
 
 		g_context->world->layers.insert(std::make_pair(layer_id, layer));
 	}

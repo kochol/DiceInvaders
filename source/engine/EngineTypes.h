@@ -7,13 +7,6 @@
 
 namespace Engine
 {
-	struct Transform
-	{
-		EntityHandle entity;
-		float x;
-		float y;
-	};
-
 	struct BaseComponent
 	{
 		EntityHandle entity;
@@ -34,24 +27,37 @@ namespace Engine
 		void *customData;
 	};
 
-	struct Rocket : BaseComponent
-	{
-	};
-
 	struct Bomb : BaseComponent
 	{
-	};
-
-	struct CollisionInfo
-	{
-		EntityHandle first;
-		EntityHandle second;
 	};
 
 	struct Resources
 	{
 		// store all loaded sprites
 		RosterPool spriteCache;
+	};
+
+	struct Transform
+	{
+		EntityHandle entity;
+		float x;
+		float y;
+	};
+
+	struct CollisionInfo
+	{
+		LayerId collidedLayer;
+		union
+		{
+			struct
+			{
+				bool top : 2;
+				bool left : 2;
+				bool right : 2;
+				bool down : 2;
+			};
+			uint8_t any;
+		} out;
 	};
 
 	struct Layer
@@ -79,8 +85,6 @@ namespace Engine
 		float dt;
 		float time;
 		KeyStatus keys;
-
-		std::unordered_map<LayerId, std::vector<EntityHandle>> collisions;
 	};
 
 	struct Config

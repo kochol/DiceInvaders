@@ -12,7 +12,5 @@ namespace Game
 
 	void InitPlayerManager(Engine::ComponentManager *const manager);
 	void UpdatePlayerFromInput(Engine::ComponentManager* const manager);
-	void ShutdownPlayer(Engine::ComponentManager* const manager);
-
-	Engine::EntityHandle SpawnPlayer();
+	void ShutdownPlayerManager(Engine::ComponentManager* const manager);
 }

@@ -26,7 +26,9 @@
     <ClCompile Include="source\engine\ModelManager.cpp" />
     <ClCompile Include="source\engine\Resource.cpp" />
     <ClCompile Include="source\game\Alien.cpp" />
+    <ClCompile Include="source\game\Game.cpp" />
     <ClCompile Include="source\game\Player.cpp" />
+    <ClCompile Include="source\game\Rocket.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -38,7 +40,9 @@
     <ClInclude Include="source\engine\Engine.h" />
     <ClInclude Include="source\engine\EngineTypes.h" />
     <ClInclude Include="source\game\Alien.h" />
+    <ClInclude Include="source\game\Game.h" />
     <ClInclude Include="source\game\Player.h" />
+    <ClInclude Include="source\game\Rocket.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AA96131E-A07B-464A-A210-BB16AF4388E7}</ProjectGuid>

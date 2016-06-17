@@ -37,6 +37,15 @@ namespace Engine
 	// Model
 	ComponentHandle     CreateModel(const EntityHandle    handle, const ResourceHandle sprite);
 	inline ComponentHandle     LookupModel(const EntityHandle    handle) { return g_context->world->modelMap[handle]; }
+	inline ComponentHandle&     GetComponentHandle(uint16_t index, ComponentType type, LayerId layer)
+	{
+		ComponentHandle handle;
+		handle.index = index;
+		handle.header.type = type;
+		handle.header.layer = layer;
+
+		return handle;
+	}
 	void                DestroyModel(const ComponentHandle handle);
 	inline  Transform*  ResolveTransform(const ComponentHandle handle) { return ResolveLayer(handle)->models.Resolve<Transform>(handle.index, 0); }
 	inline  ResourceHandle*  ResolveSprite(const ComponentHandle handle) { return ResolveLayer(handle)->models.Resolve<ResourceHandle>(handle.index, 1); }

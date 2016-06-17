@@ -18,6 +18,8 @@ namespace Engine
 
 		*layer->models.Resolve<Transform>(compHandle.index, 0) = { handle, 0, 0 };
 		*layer->models.Resolve<ResourceHandle>(compHandle.index, 1) = sprite;
+		layer->models.Resolve<CollisionInfo>(compHandle.index, 2)->collidedLayer = LayerId::NONE;
+		layer->models.Resolve<CollisionInfo>(compHandle.index, 2)->out.any = 0;
 		
 		world->modelMap[handle] = compHandle;
 
@@ -71,8 +73,6 @@ namespace Engine
 	{
 		World *const world = g_context->world;
 
-		auto collisions = &g_context->frame_data->collisions;
-
 		const int size = 32;
 
 		for (const auto collisionMask : world->collisionMasks)
@@ -88,30 +88,43 @@ namespace Engine
 
 			Transform *const first_transforms = first_layer->models.Data<Transform>(0);
 			Transform *const second_transforms = second_layer->models.Data<Transform>(0);
+
+			CollisionInfo *const first_collisions = first_layer->models.Data<CollisionInfo>(2);
+			CollisionInfo *const second_collisions = second_layer->models.Data<CollisionInfo>(2);
+
+			const int screen_width = g_context->config->screen_width;
+			const int screen_height = g_context->config->screen_height;
 			
 			for (uint16_t i = 0; i < first_count; ++i)
 			{
 				const uint16_t first_index = first_indexes[i];
 				const Transform *const first_transform = first_transforms + first_index;
 
+				first_collisions[first_index].out.left = first_transform->x < 0;
+				first_collisions[first_index].out.right = first_transform->x > screen_width;
+				first_collisions[first_index].out.top = first_transform->y < 0;
+				first_collisions[first_index].out.down = first_transform->y > screen_height;
+
 				for (uint16_t j = 0; j < second_count; ++j)
 				{
 					const uint16_t second_index = second_indexes[j];
 					const Transform *const second_transform = second_transforms + second_index;
 
-					if (first_transform->x < second_transform->x + size &&
-						first_transform->x + size > second_transform->x &&
-						first_transform->y < second_transform->y + size &&
-						first_transform->y + size > second_transform->y)
-					{
-						const CollisionInfo collision_info =
-						{
-							first_transform->entity,
-							second_transform->entity
-						};
+					second_collisions[second_index].out.left = second_transform->x < 0;
+					second_collisions[second_index].out.right = second_transform->x > screen_width;
+					second_collisions[second_index].out.top = second_transform->y < 0;
+					second_collisions[second_index].out.down = second_transform->y > screen_height;
 
-						(*collisions)[collisionMask.first].push_back(first_transform->entity);
-						(*collisions)[collisionMask.second].push_back(second_transform->entity);
+					const bool collided =
+						(first_transform->x < second_transform->x + size &&
+							first_transform->x + size > second_transform->x &&
+							first_transform->y < second_transform->y + size &&
+							first_transform->y + size > second_transform->y);
+
+					if (collided)
+					{
+						first_collisions[first_index].collidedLayer = collisionMask.second;
+						second_collisions[second_index].collidedLayer = collisionMask.first;
 					}
 				}
 			}

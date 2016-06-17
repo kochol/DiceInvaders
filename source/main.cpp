@@ -2,6 +2,8 @@
 #include "engine/Engine.h"
 #include "game/Player.h"
 #include "game/Alien.h"
+#include "game/Rocket.h"
+#include "game/Game.h"
 
 int APIENTRY WinMain(
 	HINSTANCE instance,
@@ -22,17 +24,25 @@ int APIENTRY WinMain(
 	Engine::RegisterComponentType(Engine::ComponentType::PLAYER,
 	{
 		{ Engine::CallbackStage::INIT , Game::InitPlayerManager },
-		{ Engine::CallbackStage::REG_UPDATE , Game::UpdatePlayerFromInput },
-		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownPlayer }
+		{ Engine::CallbackStage::UPDATE , Game::UpdatePlayerFromInput },
+		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownPlayerManager }
 	});
 
 	Engine::RegisterComponentType(Engine::ComponentType::ALIEN,
 	{
 		{ Engine::CallbackStage::INIT , Game::InitAlienManager },
 		{ Engine::CallbackStage::PRE_UPDATE , Game::HandleAlienCollisions },
-		{ Engine::CallbackStage::REG_UPDATE , Game::UpdateAliens },
+		{ Engine::CallbackStage::UPDATE , Game::UpdateAliens },
 		{ Engine::CallbackStage::POST_UPDATE , Game::SpawnAliens },
-		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownAliens }
+		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownAlienManager }
+	});
+
+	Engine::RegisterComponentType(Engine::ComponentType::ROCKET,
+	{
+		{ Engine::CallbackStage::INIT , Game::InitRocketManager },
+		{ Engine::CallbackStage::PRE_UPDATE , Game::HandleRocketCollisions },
+		{ Engine::CallbackStage::UPDATE , Game::UpdateRockets },
+		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownRocketManager }
 	});
 
 	Engine::g_context->world->collisionMasks.push_back({ Engine::LayerId::PLAYER, Engine::LayerId::ALIEN });
@@ -41,7 +51,7 @@ int APIENTRY WinMain(
 
 	Engine::InitComponents();
 
-	Engine::EntityHandle player = Game::SpawnPlayer();
+	Game::SpawnPlayer();
 
 	while (Engine::ShouldRun())
 	{

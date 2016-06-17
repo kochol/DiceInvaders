@@ -35,7 +35,7 @@ namespace Engine
 		NONE = 0,
 		INIT = 1,
 		PRE_UPDATE = 2,
-		REG_UPDATE = 3,
+		UPDATE = 3,
 		POST_UPDATE = 4,
 		SHUTDOWN = 5
 	};

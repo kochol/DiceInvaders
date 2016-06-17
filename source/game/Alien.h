@@ -15,5 +15,5 @@ namespace Game
 	void UpdateAliens(Engine::ComponentManager* const manager);
 	void SpawnAliens(Engine::ComponentManager* const manager);
 
-	void ShutdownAliens(Engine::ComponentManager* const manager);
+	void ShutdownAlienManager(Engine::ComponentManager* const manager);
 }
