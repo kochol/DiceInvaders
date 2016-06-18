@@ -39,7 +39,7 @@ namespace Engine
 
 	struct alignas(2) ResourceHandleHeader
 	{
-		ResourceType type;
+		uint8_t type;
 		uint8_t padding;
 	};
 	using ResourceHandle = TypedHandle<ResourceHandleHeader>;
@@ -47,14 +47,14 @@ namespace Engine
 	struct alignas(2) EntityHandleHeader
 	{
 		uint8_t salt;
-		LayerId layer;
+		uint8_t layer;
 	};
 	using EntityHandle = TypedHandle<EntityHandleHeader>;
 
 	struct alignas(2) ComponentHandleHeader
 	{
-		ComponentType type;
-		LayerId layer;
+		uint8_t type;
+		uint8_t layer;
 	};
 	using ComponentHandle = TypedHandle<ComponentHandleHeader>;
 }

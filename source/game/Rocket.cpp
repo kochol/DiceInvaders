@@ -13,7 +13,7 @@ namespace Game
 		manager->components.Init(100, { sizeof(Rocket) });
 
 		_RocketManager *const data = new _RocketManager;
-		data->sprite = Engine::LoadSprite("data/rocket.bmp");
+		data->sprite = Engine::LoadSprite("rocket.bmp");
 
 		manager->customData = data;
 	}
@@ -22,33 +22,29 @@ namespace Game
 	{
 		uint16_t count = manager->components.Size();
 
-		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LayerId::ROCKET);
-		const uint16_t *const indexes = layer->models.Indexes();
-		Engine::Transform *const transforms = layer->models.Data<Engine::Transform>(0);
-		Engine::Collider *const collisions = layer->models.Data<Engine::Collider>(2);
-
+		Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_ROCKET);
+		const uint16_t *const indexes = Engine::ResolveModelIndexes(layer);
+		Engine::BaseComponent *const model_components = Engine::ResolveModelComponentData(layer);
+		Engine::Collision *const collisions = Engine::ResolveModelCollisionData(layer);;
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			const uint16_t index = indexes[i];
 
-			if (collisions[index].collidedLayer != Engine::LayerId::NONE ||
-				collisions[index].out.top)
+			if (collisions[index].collidedLayer != Engine::LAYER_ID_NONE ||
+				collisions[index].out.any)
 			{
-				if(collisions[index].collidedLayer == Engine::LayerId::ALIEN)
+				if (collisions[index].collidedLayer == Engine::LAYER_ID_ALIEN)
 					ScorePlayer();
 
-				Engine::ComponentHandle component = manager->componentMap[transforms[index].entity];
-
-				Engine::ComponentHandle model = Engine::GetComponentHandle(
-					index,
-					Engine::ComponentType::MODEL,
-					component.header.layer);
+				const Engine::EntityHandle entity = model_components[index].entity;
+				const Engine::ComponentHandle model = model_components[index].model;
+				const Engine::ComponentHandle component = manager->componentMap[entity];
 
 				Engine::DestroyModel(model);
-				Engine::DestroyEntity(transforms[index].entity);
+				Engine::DestroyEntity(entity);
 				manager->components.Free(component.index);
-				manager->componentMap.erase(transforms[index].entity);
+				manager->componentMap.erase(entity);
 				--i;
 				--count;
 			}
@@ -57,24 +53,22 @@ namespace Game
 
 	void UpdateRockets(Engine::ComponentManager* const manager)
 	{
-		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
-
 		const uint16_t count = manager->components.Size();
 
 		const uint16_t *const indexes = manager->components.Indexes();
 		Rocket *const rockets = manager->components.Data<Rocket>();
 
-		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LayerId::ROCKET);
-		Engine::Transform *const transforms = layer->models.Data<Engine::Transform>(0);
+		Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_ROCKET);
+		Engine::Transform *const transforms = Engine::ResolveModelTransformData(layer);
 
-		const float move = frame_data->dt * 1000.f;
+		const float move = Engine::DeltaTime() * 1000.f;
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			const uint16_t index = indexes[i];
 			const uint16_t modelIndex = rockets[index].model.index;
 
-			transforms[modelIndex].y -= move;
+			transforms[modelIndex].position.y -= move;
 		}
 	}
 
@@ -85,20 +79,15 @@ namespace Game
 
 	Engine::EntityHandle SpawnRocket(float x, float y)
 	{
-		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::ComponentType::ROCKET);
-		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LayerId::ROCKET);
+		Engine::ComponentManager &manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ROCKET);
+		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LAYER_ID_ROCKET);
 
-		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(manager->customData)->sprite;
+		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(manager.customData)->sprite;
 		const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
 
-		Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::ComponentType::ROCKET);
+		Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_ROCKET, model);
 
-		Engine::BaseComponent *const componentData = manager->components.Resolve<Engine::BaseComponent>(component.index);
-		componentData->model = model;
-
-		Engine::Transform *const transform = Engine::ResolveTransform(model);
-		transform->x = x;
-		transform->y = y;
+		Engine::ResolveModelTransform(model) = { {x, y} };
 
 		return entity;
 	}

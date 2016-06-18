@@ -13,50 +13,50 @@ int APIENTRY WinMain(
 	int commandShow)
 {
 	Engine::Config config;
-	config.screen_width = 500;
+	config.screen_width = 510;
 	config.screen_height = 500;
 
 	Engine::Init(config);
-	Engine::AddLayer(Engine::LayerId::PLAYER, 1);
-	Engine::AddLayer(Engine::LayerId::ALIEN, 100);
-	Engine::AddLayer(Engine::LayerId::BOMB, 100);
-	Engine::AddLayer(Engine::LayerId::ROCKET, 100);
+	Engine::InitLayer(Engine::LAYER_ID_PLAYER, 1);
+	Engine::InitLayer(Engine::LAYER_ID_ALIEN, 100);
+	Engine::InitLayer(Engine::LAYER_ID_BOMB, 100);
+	Engine::InitLayer(Engine::LAYER_ID_ROCKET, 100);
 
-	Engine::RegisterComponentType(Engine::ComponentType::PLAYER,
+	Engine::RegisterComponentType(Engine::COMPONENT_TYPE_PLAYER,
 	{
-		{ Engine::CallbackStage::INIT , Game::InitPlayerManager },
-		{ Engine::CallbackStage::UPDATE , Game::UpdatePlayerFromInput },
-		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownPlayerManager }
+		{ Engine::CALLBACK_STAGE_INIT , Game::InitPlayerManager },
+		{ Engine::CALLBACK_STAGE_UPDATE , Game::UpdatePlayerFromInput },
+		{ Engine::CALLBACK_STAGE_SHUTDOWN , Game::ShutdownPlayerManager }
 	});
 
-	Engine::RegisterComponentType(Engine::ComponentType::ALIEN,
+	Engine::RegisterComponentType(Engine::COMPONENT_TYPE_ALIEN,
 	{
-		{ Engine::CallbackStage::INIT , Game::InitAlienManager },
-		{ Engine::CallbackStage::PRE_UPDATE , Game::HandleAlienCollisions },
-		{ Engine::CallbackStage::UPDATE , Game::UpdateAliens },
-		{ Engine::CallbackStage::POST_UPDATE , Game::SpawnAliens },
-		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownAlienManager }
+		{ Engine::CALLBACK_STAGE_INIT , Game::InitAlienManager },
+		{ Engine::CALLBACK_STAGE_PRE_UPDATE , Game::HandleAlienCollisions },
+		{ Engine::CALLBACK_STAGE_UPDATE , Game::UpdateAliens },
+		{ Engine::CALLBACK_STAGE_POST_UPDATE , Game::SpawnAliens },
+		{ Engine::CALLBACK_STAGE_SHUTDOWN , Game::ShutdownAlienManager }
 	});
 
-	Engine::RegisterComponentType(Engine::ComponentType::BOMB,
+	Engine::RegisterComponentType(Engine::COMPONENT_TYPE_BOMB,
 	{
-		{ Engine::CallbackStage::INIT , Game::InitBombManager },
-		{ Engine::CallbackStage::PRE_UPDATE , Game::HandleBombCollisions },
-		{ Engine::CallbackStage::UPDATE , Game::UpdateBombs },
-		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownBombManager }
+		{ Engine::CALLBACK_STAGE_INIT , Game::InitBombManager },
+		{ Engine::CALLBACK_STAGE_PRE_UPDATE , Game::HandleBombCollisions },
+		{ Engine::CALLBACK_STAGE_UPDATE , Game::UpdateBombs },
+		{ Engine::CALLBACK_STAGE_SHUTDOWN , Game::ShutdownBombManager }
 	});
 
-	Engine::RegisterComponentType(Engine::ComponentType::ROCKET,
+	Engine::RegisterComponentType(Engine::COMPONENT_TYPE_ROCKET,
 	{
-		{ Engine::CallbackStage::INIT , Game::InitRocketManager },
-		{ Engine::CallbackStage::PRE_UPDATE , Game::HandleRocketCollisions },
-		{ Engine::CallbackStage::UPDATE , Game::UpdateRockets },
-		{ Engine::CallbackStage::SHUTDOWN , Game::ShutdownRocketManager }
+		{ Engine::CALLBACK_STAGE_INIT , Game::InitRocketManager },
+		{ Engine::CALLBACK_STAGE_PRE_UPDATE , Game::HandleRocketCollisions },
+		{ Engine::CALLBACK_STAGE_UPDATE , Game::UpdateRockets },
+		{ Engine::CALLBACK_STAGE_SHUTDOWN , Game::ShutdownRocketManager }
 	});
 
-	Engine::g_context->world->collisionMasks.push_back({ Engine::LayerId::PLAYER, Engine::LayerId::ALIEN });
-	Engine::g_context->world->collisionMasks.push_back({ Engine::LayerId::PLAYER, Engine::LayerId::BOMB });
-	Engine::g_context->world->collisionMasks.push_back({ Engine::LayerId::ALIEN, Engine::LayerId::ROCKET });
+	Engine::g_context->world->collisionMasks.push_back({ Engine::LAYER_ID_PLAYER, Engine::LAYER_ID_ALIEN });
+	Engine::g_context->world->collisionMasks.push_back({ Engine::LAYER_ID_PLAYER, Engine::LAYER_ID_BOMB });
+	Engine::g_context->world->collisionMasks.push_back({ Engine::LAYER_ID_ALIEN, Engine::LAYER_ID_ROCKET });
 
 	Engine::InitComponents();
 
@@ -66,7 +66,7 @@ int APIENTRY WinMain(
 	{
 		Engine::PreUpdate();
 
-		Engine::RegUpdate();
+		Engine::Update();
 
 		Engine::Render();
 

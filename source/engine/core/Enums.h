@@ -1,42 +1,47 @@
 #pragma once
-#include <cstdint>
 
 namespace Engine
 {
-	enum struct ResourceType : uint8_t
+	enum ResourceType
 	{
-		NONE = 0,
-		SPRITE = 1
+		RESOURCE_TYPE_NONE = 0,
+		RESOURCE_TYPE_SPRITE = 1,
+
+		RESOURCE_TYPE_MAX = RESOURCE_TYPE_SPRITE + 1
 	};
 
-	enum struct LayerId : uint8_t
+	enum LayerId
 	{
-		NONE = 0,
-		PLAYER = 1,
-		ALIEN = 2,
-		ROCKET = 3,
-		BOMB = 4,
+		LAYER_ID_NONE = 0,
+		LAYER_ID_PLAYER = 1,
+		LAYER_ID_ALIEN = 2,
+		LAYER_ID_ROCKET = 3,
+		LAYER_ID_BOMB = 4,
 
-		MAX = BOMB + 1
+		LAYER_ID_MAX = LAYER_ID_BOMB + 1
 	};
 
-	enum struct ComponentType : uint8_t
+	enum ComponentType
 	{
-		NONE = 0,
-		MODEL = 1,
-		PLAYER = 2,
-		ALIEN = 3,
-		ROCKET = 4,
-		BOMB = 5
+		COMPONENT_TYPE_NONE = 0,
+		COMPONENT_TYPE_MODEL = 1,
+		COMPONENT_TYPE_PLAYER = 2,
+		COMPONENT_TYPE_ALIEN = 3,
+		COMPONENT_TYPE_ROCKET = 4,
+		COMPONENT_TYPE_BOMB = 5,
+
+		COMPONENT_TYPE_MAX = COMPONENT_TYPE_BOMB + 1
 	};
 
-	enum struct CallbackStage
+	enum CallbackStage
 	{
-		NONE = 0,
-		INIT = 1,
-		PRE_UPDATE = 2,
-		UPDATE = 3,
-		POST_UPDATE = 4,
-		SHUTDOWN = 5
+		CALLBACK_STAGE_NONE = 0,
+		CALLBACK_STAGE_INIT = 1,
+		CALLBACK_STAGE_PRE_UPDATE = 2,
+		CALLBACK_STAGE_UPDATE = 3,
+		CALLBACK_STAGE_POST_UPDATE = 4,
+		CALLBACK_STAGE_SHUTDOWN = 5,
+
+		CALLBACK_STAGE_MAX = CALLBACK_STAGE_SHUTDOWN + 1
 	};
 }

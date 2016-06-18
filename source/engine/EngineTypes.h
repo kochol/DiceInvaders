@@ -1,7 +1,6 @@
 #pragma once
 #include "core/Library.h"
 #include <unordered_map>
-#include <unordered_set>
 #include "core/EntityHandleManager.h"
 #include "core/RosterPool.h"
 
@@ -22,25 +21,38 @@ namespace Engine
 		RosterPool components;
 
 		typedef void(*Callback)(ComponentManager *const);
-		std::unordered_map<CallbackStage, Callback> callbacks;
+		Callback callbacks[CALLBACK_STAGE_MAX];
 
 		void *customData;
 	};
 
 	struct Resources
 	{
-		// store all loaded sprites
-		RosterPool spriteCache;
+		// store all loaded resources
+		RosterPool caches[RESOURCE_TYPE_MAX];
 	};
 
 	struct Transform
 	{
-		EntityHandle entity;
-		float x;
-		float y;
+		struct
+		{
+			float x;
+			float y;
+		} position;
 	};
 
 	struct Collider
+	{
+		struct
+		{
+			float left;
+			float down;
+			float right;
+			float top;
+		} localBb;
+	};
+
+	struct Collision
 	{
 		LayerId collidedLayer;
 		union
@@ -69,9 +81,9 @@ namespace Engine
 		EntityHandleManager handleManager;
 		HandleHashMap<EntityHandle, ComponentHandle> modelMap;
 
-		std::unordered_map<LayerId, Layer*> layers;
+		Layer *layers[LAYER_ID_MAX];
 
-		std::unordered_map<ComponentType, ComponentManager*> components;
+		ComponentManager *components[COMPONENT_TYPE_MAX];
 
 		std::vector<std::pair<LayerId, LayerId>> collisionMasks;
 	};

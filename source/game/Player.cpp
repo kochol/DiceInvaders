@@ -14,52 +14,53 @@ namespace Game
 
 		_PlayerManager *const data = new _PlayerManager;
 
-		data->sprite = Engine::LoadSprite("data/player.bmp");
+		data->sprite = Engine::LoadSprite("player.bmp");
 
 		manager->customData = data;
 	}
 
 	void UpdatePlayerFromInput(Engine::ComponentManager* const manager)
 	{
-		const Engine::FrameData *const frame_data = Engine::g_context->frame_data;
-
 		Player *const playerCompData = manager->components.Resolve<Player>(0);
 
-		const float move = frame_data->dt * 300.0f;
+		const float move = Engine::DeltaTime() * 300.0f;
 
-		Engine::Transform *const transform = Engine::ResolveTransform(playerCompData->model);
+		Engine::Transform &transform = Engine::ResolveModelTransform(playerCompData->model);
 
-		if (frame_data->keys.right)
-			transform->x += move;
-		else if (frame_data->keys.left)
-			transform->x -= move;
+		if (Engine::Keys().right)
+			transform.position.x += move;
+		else if (Engine::Keys().left)
+			transform.position.x -= move;
 
-		if (frame_data->keys.fire && frame_data->time - playerCompData->lastFired > 0.25f)
+		const float max_x = Engine::ScreenWidth() - 35.f;
+		const float min_x = 3.f;
+		transform.position.x = max(min_x, min(max_x, transform.position.x));
+
+		if (Engine::Keys().fire && Engine::Time() - playerCompData->lastFired > 0.25f)
 		{
-			playerCompData->lastFired = frame_data->time;
-			SpawnRocket(transform->x, transform->y - 35);
+			playerCompData->lastFired = Engine::Time();
+			SpawnRocket(transform.position.x, transform.position.y - 35);
 		}
 	}
 
 	Engine::EntityHandle SpawnPlayer()
 	{
-		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::ComponentType::PLAYER);
-		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LayerId::PLAYER);
+		Engine::ComponentManager &manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_PLAYER);
+		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LAYER_ID_PLAYER);
 		
-		Engine::ResourceHandle sprite = reinterpret_cast<_PlayerManager*>(manager->customData)->sprite;
+		Engine::ResourceHandle sprite = reinterpret_cast<_PlayerManager*>(manager.customData)->sprite;
 		const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
 
-		Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::ComponentType::PLAYER);
+		Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_PLAYER, model);
 		
-		Player *const componentData = manager->components.Resolve<Player>(component.index);
-		componentData->model = model;
+		Player *const componentData = manager.components.Resolve<Player>(component.index);
 		componentData->health = 3;
 		componentData->lastFired = 0.f;
 		
-		Engine::Transform *const transform = Engine::ResolveTransform(model);
+		Engine::Transform &transform = Engine::ResolveModelTransform(model);
 
-		transform->x = Engine::g_context->config->screen_width / 2.f;
-		transform->y = Engine::g_context->config->screen_height - 32.f;
+		transform.position.x = Engine::g_context->config->screen_width / 2.f;
+		transform.position.y = Engine::g_context->config->screen_height - 32.f;
 
 		g_currentSession.player = component;
 
@@ -73,8 +74,8 @@ namespace Game
 
 	void DamagePlayer()
 	{
-		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::ComponentType::PLAYER);
-		Player *const componentData = manager->components.Resolve<Player>(g_currentSession.player.index);
+		Engine::ComponentManager &manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_PLAYER);
+		Player *const componentData = manager.components.Resolve<Player>(g_currentSession.player.index);
 		
 		componentData->health -= 1;
 

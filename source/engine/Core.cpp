@@ -25,15 +25,15 @@ namespace Engine
 	static void _LoadLibrary(_Context *const _context);
 	static void ExecuteComponentCallbacks(CallbackStage stage)
 	{
-		for (auto managerPair : g_context->world->components)
+		for (auto const manager : g_context->world->components)
 		{
-			ComponentManager *const manager = managerPair.second;
-
-			const auto callback = manager->callbacks.find(stage);
-			if (callback == manager->callbacks.end())
+			if (manager == nullptr)
 				continue;
 
-			callback->second(manager);
+			if (manager->callbacks[stage] == nullptr)
+				continue;
+
+			manager->callbacks[stage](manager);
 		}
 	}
 
@@ -47,9 +47,13 @@ namespace Engine
 		_context->system->init(config.screen_width, config.screen_height);
 
 		_context->resources = new Resources;
-		_context->resources->spriteCache.Init(10, { sizeof(ISprite*) });
+		_context->resources->caches[RESOURCE_TYPE_SPRITE].Init(10, { sizeof(ISprite*) });
 
 		_context->world = new World;
+		for (auto& layer : _context->world->layers)
+			layer = nullptr;
+		for (auto& manager : _context->world->components)
+			manager = nullptr;
 		
 		_FrameData *const _frame_data = new _FrameData;
 		_frame_data->_prev_time = _context->system->getElapsedTime();
@@ -78,7 +82,7 @@ namespace Engine
 	{
 		_Context *const _context = reinterpret_cast<_Context*>(g_context);
 
-		ExecuteComponentCallbacks(CallbackStage::SHUTDOWN);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_SHUTDOWN);
 
 		delete _context->rnd_device;
 		delete _context->rnd_engine;
@@ -88,7 +92,7 @@ namespace Engine
 		FreeLibrary(_context->_lib);
 	}
 
-	float GetRandom()
+	float Random()
 	{
 		_Context *const _context = reinterpret_cast<_Context*>(g_context);
 		return (*_context->rnd_dist)(*_context->rnd_engine);
@@ -102,7 +106,7 @@ namespace Engine
 
 	void InitComponents()
 	{
-		ExecuteComponentCallbacks(CallbackStage::INIT);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_INIT);
 	}
 
 	void PreUpdate()
@@ -119,12 +123,12 @@ namespace Engine
 
 		_context->system->getKeyStatus(_frame_data->keys);
 
-		ExecuteComponentCallbacks(CallbackStage::PRE_UPDATE);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_PRE_UPDATE);
 	}
 
-	void RegUpdate()
+	void Update()
 	{
-		ExecuteComponentCallbacks(CallbackStage::UPDATE);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_UPDATE);
 	}
 
 	void PostUpdate()
@@ -132,46 +136,52 @@ namespace Engine
 		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
 		_context->_running = g_context->system->update();
 
-		ExecuteComponentCallbacks(CallbackStage::POST_UPDATE);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_POST_UPDATE);
 	}
 
-	void AddLayer(const LayerId layer_id, const uint16_t max_items)
+	void InitLayer(const LayerId layer_id, const uint16_t max_items)
 	{
-		assert(g_context->world->layers.find(layer_id) == g_context->world->layers.end());
+		assert(g_context->world->layers[layer_id] == nullptr);
 
 		Layer *const layer = new Layer;
 
 		layer->id = layer_id;
-		layer->models.Init(max_items, { sizeof(Transform), sizeof(ResourceHandle), sizeof(Collider) });
+		layer->models.Init(max_items, { sizeof(BaseComponent), sizeof(Transform), sizeof(ResourceHandle), sizeof(Collider), sizeof(Collision) });
 
-		g_context->world->layers.insert(std::make_pair(layer_id, layer));
+		g_context->world->layers[layer_id] = layer;
 	}
 
 	void RegisterComponentType(ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks)
 	{
-		assert(g_context->world->components.find(type) == g_context->world->components.end());
+		assert(g_context->world->components[type] == nullptr);
 
 		ComponentManager *const manager = new ComponentManager;
-
+		
 		manager->type = type;
-		manager->callbacks = callbacks;
 
-		g_context->world->components.insert(std::make_pair(type, manager));
+		for (auto& callback : manager->callbacks)
+			callback = nullptr;
+
+		for (const auto const callback : callbacks)
+			manager->callbacks[callback.first] = callback.second;
+		
+		g_context->world->components[type] = manager;
 	}
 
-	ComponentHandle CreateComponent(const EntityHandle entity, const ComponentType type)
+	ComponentHandle CreateComponent(const EntityHandle entity, const ComponentType type, const ComponentHandle model)
 	{
-		Engine::ComponentManager *const manager = Engine::GetComponentManager(type);
+		Engine::ComponentManager &manager = Engine::GetComponentManager(type);
 
 		Engine::ComponentHandle component;
-		component.index = manager->components.Alloc();
+		component.index = manager.components.Alloc();
 		component.header.layer = entity.header.layer;
-		component.header.type = manager->type;
+		component.header.type = manager.type;
 
-		manager->componentMap[entity] = component;
+		manager.componentMap[entity] = component;
 
-		BaseComponent *const componentData = manager->components.Resolve<BaseComponent>(component.index);
+		BaseComponent *const componentData = manager.components.Resolve<BaseComponent>(component.index);
 		componentData->entity = entity;
+		componentData->model = model;
 
 		return component;
 	}

@@ -7,21 +7,20 @@ namespace Engine
 	{
 		World *const world = g_context->world;
 
-		assert(world->layers.find(handle.header.layer) != world->layers.end());
+		assert(world->layers[handle.header.layer] != nullptr);
 
-		Layer *const layer = ResolveLayer(handle);
+		Layer& layer = ResolveLayer(handle);
 
 		ComponentHandle compHandle;
-		compHandle.index = layer->models.Alloc();
-		compHandle.header.type = ComponentType::MODEL;
+		compHandle.index = layer.models.Alloc();
+		compHandle.header.type = COMPONENT_TYPE_MODEL;
 		compHandle.header.layer = handle.header.layer;
 
-		*layer->models.Resolve<Transform>(compHandle.index, 0) = { handle, 0, 0 };
-		*layer->models.Resolve<ResourceHandle>(compHandle.index, 1) = sprite;
-
-		Collider *const collision_info = layer->models.Resolve<Collider>(compHandle.index, 2);
-		collision_info->collidedLayer = LayerId::NONE;
-		collision_info->out.any = 0;
+		ResolveModelComponent(compHandle) = { handle, compHandle };
+		ResolveModelTransform(compHandle) = { { 0.f, 0.f } };
+		ResolveModelSprite(compHandle) = sprite;
+		ResolveModelCollider(compHandle) = { { 0.f, 0.f, 32.f, 32.f } };
+		ResolveModelCollision(compHandle) = { LAYER_ID_NONE };
 		
 		world->modelMap[handle] = compHandle;
 
@@ -30,43 +29,46 @@ namespace Engine
 
 	void DestroyModel(const ComponentHandle handle)
 	{
-		assert(handle.header.type == ComponentType::MODEL);
+		assert(handle.header.type == COMPONENT_TYPE_MODEL);
 
 		World *const world = g_context->world;
 
 		// TODO: make it deferred
 
-		const Transform *const transform = ResolveTransform(handle);
-		world->modelMap.erase(transform->entity);
+		const BaseComponent const component = ResolveModelComponent(handle);
+		world->modelMap.erase(component.entity);
 
-		Layer *const layer = ResolveLayer(handle);
+		Layer &layer = ResolveLayer(handle);
 
-		layer->models.Free(handle.index);
+		layer.models.Free(handle.index);
 	}
 
 	void Render()
 	{
 		const World *const world = g_context->world;
 
-		ISprite **const iSprites = g_context->resources->spriteCache.Data<ISprite*>();
-		const uint16_t *const iSpritesIndexes = g_context->resources->spriteCache.Indexes();
+		ISprite **const iSprites = ResolveSpriteData();
+		const uint16_t *const iSpritesIndexes = ResolveSpriteIndexes();
 
-		for (const auto layerPair : world->layers)
+		for (const auto layer : world->layers)
 		{
-			const Layer *const layer = layerPair.second;
+			if (layer == nullptr)
+				continue;
 
-			const uint16_t count = layer->models.Size();
+			const uint16_t count = ResolveModelCount(*layer);
 
-			const uint16_t* indexes = layer->models.Indexes();
-			const Transform *const transforms = layer->models.Data<Transform>(0);
-			const ResourceHandle *const sprites = layer->models.Data<ResourceHandle>(1);
+			const uint16_t *const indexes = ResolveModelIndexes(*layer);
+			const Transform *const transforms = ResolveModelTransformData(*layer);
+			const ResourceHandle *const sprites = ResolveModelSpriteData(*layer);
 
 			for (uint16_t i = 0; i < count; ++i)
 			{
 				const uint16_t index = indexes[i];
 				const uint16_t iSpriteIndex = iSpritesIndexes[sprites[index].index];
 				ISprite *const sprite = iSprites[iSpriteIndex];
-				sprite->draw(static_cast<int>(transforms[index].x), static_cast<int>(transforms[index].y));
+				sprite->draw(
+					static_cast<int>(transforms[index].position.x),
+					static_cast<int>(transforms[index].position.y));
 			}
 		}
 	}
@@ -75,58 +77,63 @@ namespace Engine
 	{
 		World *const world = g_context->world;
 
-		const int size = 32;
+		const int screen_width = g_context->config->screen_width;
+		const int screen_height = g_context->config->screen_height;
 
 		for (const auto collisionMask : world->collisionMasks)
 		{
-			Layer *const first_layer = world->layers[collisionMask.first];
-			Layer *const second_layer = world->layers[collisionMask.second];
+			Layer &first_layer = ResolveLayer(collisionMask.first);
+			Layer &second_layer = ResolveLayer(collisionMask.second);
 
-			const uint16_t first_count = first_layer->models.Size();
-			const uint16_t second_count = second_layer->models.Size();
+			const uint16_t first_count = ResolveModelCount(first_layer);
+			const uint16_t second_count = ResolveModelCount(second_layer);
 
-			const uint16_t *const first_indexes = first_layer->models.Indexes();
-			const uint16_t *const second_indexes = second_layer->models.Indexes();
+			const uint16_t *const first_indexes = ResolveModelIndexes(first_layer);
+			const uint16_t *const second_indexes = ResolveModelIndexes(second_layer);
 
-			Transform *const first_transforms = first_layer->models.Data<Transform>(0);
-			Transform *const second_transforms = second_layer->models.Data<Transform>(0);
+			Transform *const first_transforms = ResolveModelTransformData(first_layer);
+			Transform *const second_transforms = ResolveModelTransformData(second_layer);
 
-			Collider *const first_collisions = first_layer->models.Data<Collider>(2);
-			Collider *const second_collisions = second_layer->models.Data<Collider>(2);
+			Collider *const first_colliders = ResolveModelColliderData(first_layer);
+			Collider *const second_colliders = ResolveModelColliderData(second_layer);
 
-			const int screen_width = g_context->config->screen_width;
-			const int screen_height = g_context->config->screen_height;
-			
+			Collision *const first_collisions = ResolveModelCollisionData(first_layer);
+			Collision *const second_collisions = ResolveModelCollisionData(second_layer);
+
 			for (uint16_t i = 0; i < first_count; ++i)
 			{
 				const uint16_t first_index = first_indexes[i];
 				const Transform *const first_transform = first_transforms + first_index;
+				const Collider *const first_collider = first_colliders + first_index;
+				Collision *const first_collision = first_collisions + first_index;
 
-				first_collisions[first_index].out.left = first_transform->x < 0;
-				first_collisions[first_index].out.right = first_transform->x > screen_width;
-				first_collisions[first_index].out.top = first_transform->y < 0;
-				first_collisions[first_index].out.down = first_transform->y > screen_height;
+				first_collision->out.left = first_transform->position.x + first_collider->localBb.left < 0;
+				first_collision->out.right = first_transform->position.x + first_collider->localBb.right > screen_width;
+				first_collision->out.top = first_transform->position.y + first_collider->localBb.down < 0;
+				first_collision->out.down = first_transform->position.y + first_collider->localBb.top > screen_height;
 
 				for (uint16_t j = 0; j < second_count; ++j)
 				{
 					const uint16_t second_index = second_indexes[j];
 					const Transform *const second_transform = second_transforms + second_index;
+					const Collider *const second_collider = second_colliders + second_index;
+					Collision *const second_collision = second_collisions + second_index;
 
-					second_collisions[second_index].out.left = second_transform->x < 0;
-					second_collisions[second_index].out.right = second_transform->x > screen_width;
-					second_collisions[second_index].out.top = second_transform->y < 0;
-					second_collisions[second_index].out.down = second_transform->y > screen_height;
+					second_collision->out.left = second_transform->position.x + second_collider->localBb.left < 0;
+					second_collision->out.right = second_transform->position.x + second_collider->localBb.right > screen_width;
+					second_collision->out.top = second_transform->position.y + second_collider->localBb.down < 0;
+					second_collision->out.down = second_transform->position.y + second_collider->localBb.top > screen_height;
 
 					const bool collided =
-						(first_transform->x < second_transform->x + size &&
-							first_transform->x + size > second_transform->x &&
-							first_transform->y < second_transform->y + size &&
-							first_transform->y + size > second_transform->y);
+						first_transform->position.x + first_collider->localBb.left < second_transform->position.x + second_collider->localBb.right &&
+						first_transform->position.x + first_collider->localBb.right > second_transform->position.x + second_collider->localBb.left &&
+						first_transform->position.y + first_collider->localBb.down < second_transform->position.y + second_collider->localBb.top &&
+						first_transform->position.y + first_collider->localBb.top > second_transform->position.y + second_collider->localBb.down;
 
 					if (collided)
 					{
-						first_collisions[first_index].collidedLayer = collisionMask.second;
-						second_collisions[second_index].collidedLayer = collisionMask.first;
+						first_collision->collidedLayer = collisionMask.second;
+						second_collision->collidedLayer = collisionMask.first;
 					}
 				}
 			}
