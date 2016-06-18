@@ -23,6 +23,7 @@
     <ClCompile Include="source\engine\core\EntityHandleManager.cpp" />
     <ClCompile Include="source\engine\core\RosterPool.cpp" />
     <ClCompile Include="source\engine\ModelManager.cpp" />
+    <ClCompile Include="source\engine\Physics.cpp" />
     <ClCompile Include="source\engine\Resource.cpp" />
     <ClCompile Include="source\game\Alien.cpp" />
     <ClCompile Include="source\game\Bomb.cpp" />

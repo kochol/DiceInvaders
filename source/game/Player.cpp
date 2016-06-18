@@ -63,7 +63,9 @@ namespace Game
 			Engine::g_context->config->screen_height - 32.f
 		} };
 
-		*Engine::ResolveModelCollider(model) = { { 16.f, 28.f, 15.5f, 17.f } };
+		Engine::Collider *const collider = Engine::ResolveModelCollider(model);
+		collider->localBb.center = { 16.f, 15.5f };
+		collider->localBb.halfSize = { 14.f, 8.5f };
 
 		g_currentSession.player = component;
 

@@ -114,7 +114,9 @@ namespace Engine
 		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
 		_FrameData *const _frame_data = reinterpret_cast<_FrameData *const>(g_context->frame_data);
 
+		UpdateLayerBoundingBoxes();
 		DetectCollisions();
+		DetectBoundaryCollisions();
 
 		const float time = _context->system->getElapsedTime();
 		_frame_data->time = time;

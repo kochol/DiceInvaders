@@ -16,8 +16,9 @@ namespace Engine
 	void PostUpdate();
 	void ShutdownComponents();
 
-	void UpdateBoundingBoxes();
+	void UpdateLayerBoundingBoxes();
 	void DetectCollisions();
+	void DetectBoundaryCollisions();
 	void Render();
 
 	// World

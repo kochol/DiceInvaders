@@ -43,10 +43,10 @@ namespace Game
 		{
 			const uint16_t index = indexes[i];
 
-			if (collisions[index].collidedLayer != Engine::LAYER_ID_NONE ||
+			if (collisions[index].collidedLayers ||
 				collisions[index].boundary)
 			{
-				if (collisions[index].collidedLayer == Engine::LAYER_ID_PLAYER)
+				if (collisions[index].collidedLayers & (1 << Engine::LAYER_ID_PLAYER))
 					DamagePlayer();
 
 				const Engine::EntityHandle entity = model_components[index].entity;
@@ -146,10 +146,10 @@ namespace Game
 				Alien *const componentData = manager->components.Resolve<Alien>(component.index);
 				componentData->lastDroped = 0.f;
 
-				transforms[model.index].position.x = static_cast<float>(i * 35);
-				transforms[model.index].position.y = static_cast<float>(j * 35 + 100);
+				transforms[model.index].position = { i * 35.f, j * 35.f + 100.f };
 
-				colliders[model.index] = { { 16.f, 30.f, 16.f, 22.f } };
+				colliders[model.index].localBb.center = { 16.f, 16.f };
+				colliders[model.index].localBb.halfSize = { 15.f, 11.f };
 			}
 		}
 	}

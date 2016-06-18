@@ -32,23 +32,21 @@ namespace Engine
 		RosterPool caches[RESOURCE_TYPE_MAX];
 	};
 
-	struct BoundingBox
+	struct Vector2
 	{
 		float x;
-		float w;
 		float y;
-		float h;
 	};
 
-	struct Point
+	struct BoundingBox
 	{
-		float x;
-		float y;
+		Vector2 center;
+		Vector2 halfSize;
 	};
 
 	struct Transform
 	{
-		Point position;
+		Vector2 position;
 	};
 
 	struct Collider
@@ -56,10 +54,11 @@ namespace Engine
 		BoundingBox localBb;
 	};
 
-	struct Collision
+	struct alignas(4) Collision
 	{
-		LayerId collidedLayer;
-		bool boundary;
+		uint16_t collidedLayers;
+		uint8_t boundary;
+		uint8_t padding;
 	};
 
 	struct Layer

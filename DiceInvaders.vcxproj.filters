@@ -43,6 +43,9 @@
     <ClCompile Include="source\game\Bomb.cpp">
       <Filter>game</Filter>
     </ClCompile>
+    <ClCompile Include="source\engine\Physics.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\game\Alien.h">

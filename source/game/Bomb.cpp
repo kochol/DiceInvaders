@@ -32,10 +32,10 @@ namespace Game
 		{
 			const uint16_t index = indexes[i];
 
-			if (collisions[index].collidedLayer != Engine::LAYER_ID_NONE ||
+			if (collisions[index].collidedLayers ||
 				collisions[index].boundary)
 			{
-				if (collisions[index].collidedLayer == Engine::LAYER_ID_PLAYER)
+				if (collisions[index].collidedLayers & (1 << Engine::LAYER_ID_PLAYER))
 					DamagePlayer();
 
 				const Engine::EntityHandle entity = model_components[index].entity;
@@ -87,8 +87,11 @@ namespace Game
 
 		Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_BOMB, model);
 
-		*Engine::ResolveModelTransform(model) = { {x, y} };
-		*Engine::ResolveModelCollider(model) = { { 16.f, 6.f, 16.f, 16.f } };
+		Engine::ResolveModelTransform(model)->position = { x, y };
+
+		Engine::Collider *const collider = Engine::ResolveModelCollider(model);
+		collider->localBb.center = { 16.f, 16.f };
+		collider->localBb.halfSize = { 3.f, 8.f };
 
 		return entity;
 	}
