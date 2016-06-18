@@ -1,8 +1,8 @@
 #pragma once
 #include "core/Library.h"
-#include <unordered_map>
 #include "core/EntityHandleManager.h"
 #include "core/RosterPool.h"
+#include "core/Enums.h"
 
 namespace Engine
 {
@@ -32,40 +32,34 @@ namespace Engine
 		RosterPool caches[RESOURCE_TYPE_MAX];
 	};
 
+	struct BoundingBox
+	{
+		float x;
+		float w;
+		float y;
+		float h;
+	};
+
+	struct Point
+	{
+		float x;
+		float y;
+	};
+
 	struct Transform
 	{
-		struct
-		{
-			float x;
-			float y;
-		} position;
+		Point position;
 	};
 
 	struct Collider
 	{
-		struct
-		{
-			float left;
-			float down;
-			float right;
-			float top;
-		} localBb;
+		BoundingBox localBb;
 	};
 
 	struct Collision
 	{
 		LayerId collidedLayer;
-		union
-		{
-			struct
-			{
-				bool top : 2;
-				bool left : 2;
-				bool right : 2;
-				bool down : 2;
-			};
-			uint8_t any;
-		} out;
+		bool boundary;
 	};
 
 	struct Layer

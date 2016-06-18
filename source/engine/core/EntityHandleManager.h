@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Handle.h"
+#include "Enums.h"
 
 namespace Engine
 {

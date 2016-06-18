@@ -22,7 +22,7 @@ namespace Game
 	{
 		uint16_t count = manager->components.Size();
 
-		Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_ROCKET);
+		const Engine::LayerId layer = Engine::LAYER_ID_ROCKET;
 		const uint16_t *const indexes = Engine::ResolveModelIndexes(layer);
 		Engine::BaseComponent *const model_components = Engine::ResolveModelComponentData(layer);
 		Engine::Collision *const collisions = Engine::ResolveModelCollisionData(layer);;
@@ -32,7 +32,7 @@ namespace Game
 			const uint16_t index = indexes[i];
 
 			if (collisions[index].collidedLayer != Engine::LAYER_ID_NONE ||
-				collisions[index].out.any)
+				collisions[index].boundary)
 			{
 				if (collisions[index].collidedLayer == Engine::LAYER_ID_ALIEN)
 					ScorePlayer();
@@ -58,8 +58,7 @@ namespace Game
 		const uint16_t *const indexes = manager->components.Indexes();
 		Rocket *const rockets = manager->components.Data<Rocket>();
 
-		Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_ROCKET);
-		Engine::Transform *const transforms = Engine::ResolveModelTransformData(layer);
+		Engine::Transform *const transforms = Engine::ResolveModelTransformData(Engine::LAYER_ID_ROCKET);
 
 		const float move = Engine::DeltaTime() * 1000.f;
 
@@ -79,15 +78,16 @@ namespace Game
 
 	Engine::EntityHandle SpawnRocket(float x, float y)
 	{
-		Engine::ComponentManager &manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ROCKET);
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ROCKET);
 		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LAYER_ID_ROCKET);
 
-		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(manager.customData)->sprite;
+		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(manager->customData)->sprite;
 		const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
 
 		Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_ROCKET, model);
 
-		Engine::ResolveModelTransform(model) = { {x, y} };
+		*Engine::ResolveModelTransform(model) = { {x, y} };
+		*Engine::ResolveModelCollider(model) = { { 16.f, 4.f, 16.5f, 19.f } };
 
 		return entity;
 	}

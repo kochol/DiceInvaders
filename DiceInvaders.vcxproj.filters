@@ -28,9 +28,6 @@
     <ClCompile Include="source\engine\Core.cpp">
       <Filter>engine</Filter>
     </ClCompile>
-    <ClCompile Include="source\engine\EntityManager.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
     <ClCompile Include="source\engine\ModelManager.cpp">
       <Filter>engine</Filter>
     </ClCompile>

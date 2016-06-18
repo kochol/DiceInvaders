@@ -151,7 +151,7 @@ namespace Engine
 		g_context->world->layers[layer_id] = layer;
 	}
 
-	void RegisterComponentType(ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks)
+	void RegisterComponentType(const ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks)
 	{
 		assert(g_context->world->components[type] == nullptr);
 
@@ -162,24 +162,24 @@ namespace Engine
 		for (auto& callback : manager->callbacks)
 			callback = nullptr;
 
-		for (const auto const callback : callbacks)
+		for (const auto callback : callbacks)
 			manager->callbacks[callback.first] = callback.second;
 		
 		g_context->world->components[type] = manager;
 	}
 
-	ComponentHandle CreateComponent(const EntityHandle entity, const ComponentType type, const ComponentHandle model)
+	ComponentHandle CreateComponent(const EntityHandle& entity, const ComponentType type, const ComponentHandle& model)
 	{
-		Engine::ComponentManager &manager = Engine::GetComponentManager(type);
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(type);
 
 		Engine::ComponentHandle component;
-		component.index = manager.components.Alloc();
+		component.index = manager->components.Alloc();
 		component.header.layer = entity.header.layer;
-		component.header.type = manager.type;
+		component.header.type = manager->type;
 
-		manager.componentMap[entity] = component;
+		manager->componentMap[entity] = component;
 
-		BaseComponent *const componentData = manager.components.Resolve<BaseComponent>(component.index);
+		BaseComponent *const componentData = manager->components.Resolve<BaseComponent>(component.index);
 		componentData->entity = entity;
 		componentData->model = model;
 

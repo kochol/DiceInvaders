@@ -3,31 +3,31 @@
 
 namespace Engine
 {
-	ComponentHandle CreateModel(const EntityHandle handle, const ResourceHandle sprite)
+	ComponentHandle CreateModel(const EntityHandle& handle, const ResourceHandle& sprite)
 	{
 		World *const world = g_context->world;
 
 		assert(world->layers[handle.header.layer] != nullptr);
 
-		Layer& layer = ResolveLayer(handle);
+		Layer *const layer = ResolveLayer(handle);
 
 		ComponentHandle compHandle;
-		compHandle.index = layer.models.Alloc();
+		compHandle.index = layer->models.Alloc();
 		compHandle.header.type = COMPONENT_TYPE_MODEL;
 		compHandle.header.layer = handle.header.layer;
 
-		ResolveModelComponent(compHandle) = { handle, compHandle };
-		ResolveModelTransform(compHandle) = { { 0.f, 0.f } };
-		ResolveModelSprite(compHandle) = sprite;
-		ResolveModelCollider(compHandle) = { { 0.f, 0.f, 32.f, 32.f } };
-		ResolveModelCollision(compHandle) = { LAYER_ID_NONE };
+		*ResolveModelComponent(compHandle) = { handle, compHandle };
+		*ResolveModelTransform(compHandle) = { { 0.f, 0.f } };
+		*ResolveModelSprite(compHandle) = sprite;
+		*ResolveModelCollider(compHandle) = { { 16.f, 32.f, 16.f, 32.f } };
+		*ResolveModelCollision(compHandle) = { LAYER_ID_NONE };
 		
 		world->modelMap[handle] = compHandle;
 
 		return compHandle;
 	}
 
-	void DestroyModel(const ComponentHandle handle)
+	void DestroyModel(const ComponentHandle& handle)
 	{
 		assert(handle.header.type == COMPONENT_TYPE_MODEL);
 
@@ -35,12 +35,12 @@ namespace Engine
 
 		// TODO: make it deferred
 
-		const BaseComponent const component = ResolveModelComponent(handle);
-		world->modelMap.erase(component.entity);
+		const BaseComponent *const component = ResolveModelComponent(handle);
+		world->modelMap.erase(component->entity);
 
-		Layer &layer = ResolveLayer(handle);
+		Layer *const layer = ResolveLayer(handle);
 
-		layer.models.Free(handle.index);
+		layer->models.Free(handle.index);
 	}
 
 	void Render()
@@ -73,32 +73,45 @@ namespace Engine
 		}
 	}
 
+
+	inline bool CheckAabbCollision(
+		const float x1, const float y1, const float w1, const float h1,
+		const float x2, const float y2, const float w2, const float h2)
+	{
+		return
+			abs(x1 - x2) * 2.f < w1 + w2 &&
+			abs(y1 - y2) * 2.f < h1 + h2;
+	}
+
 	void DetectCollisions()
 	{
 		World *const world = g_context->world;
 
-		const int screen_width = g_context->config->screen_width;
-		const int screen_height = g_context->config->screen_height;
+		const float screen_width = ScreenWidth();
+		const float screen_height = ScreenHeight();
+
+		const float screen_center_x = screen_width / 2;
+		const float screen_center_y = screen_height / 2;
 
 		for (const auto collisionMask : world->collisionMasks)
 		{
-			Layer &first_layer = ResolveLayer(collisionMask.first);
-			Layer &second_layer = ResolveLayer(collisionMask.second);
+			Layer *const first_layer = ResolveLayer(collisionMask.first);
+			Layer *const second_layer = ResolveLayer(collisionMask.second);
 
-			const uint16_t first_count = ResolveModelCount(first_layer);
-			const uint16_t second_count = ResolveModelCount(second_layer);
+			const uint16_t first_count = ResolveModelCount(*first_layer);
+			const uint16_t second_count = ResolveModelCount(*second_layer);
 
-			const uint16_t *const first_indexes = ResolveModelIndexes(first_layer);
-			const uint16_t *const second_indexes = ResolveModelIndexes(second_layer);
+			const uint16_t *const first_indexes = ResolveModelIndexes(*first_layer);
+			const uint16_t *const second_indexes = ResolveModelIndexes(*second_layer);
 
-			Transform *const first_transforms = ResolveModelTransformData(first_layer);
-			Transform *const second_transforms = ResolveModelTransformData(second_layer);
+			Transform *const first_transforms = ResolveModelTransformData(*first_layer);
+			Transform *const second_transforms = ResolveModelTransformData(*second_layer);
 
-			Collider *const first_colliders = ResolveModelColliderData(first_layer);
-			Collider *const second_colliders = ResolveModelColliderData(second_layer);
+			Collider *const first_colliders = ResolveModelColliderData(*first_layer);
+			Collider *const second_colliders = ResolveModelColliderData(*second_layer);
 
-			Collision *const first_collisions = ResolveModelCollisionData(first_layer);
-			Collision *const second_collisions = ResolveModelCollisionData(second_layer);
+			Collision *const first_collisions = ResolveModelCollisionData(*first_layer);
+			Collision *const second_collisions = ResolveModelCollisionData(*second_layer);
 
 			for (uint16_t i = 0; i < first_count; ++i)
 			{
@@ -107,10 +120,14 @@ namespace Engine
 				const Collider *const first_collider = first_colliders + first_index;
 				Collision *const first_collision = first_collisions + first_index;
 
-				first_collision->out.left = first_transform->position.x + first_collider->localBb.left < 0;
-				first_collision->out.right = first_transform->position.x + first_collider->localBb.right > screen_width;
-				first_collision->out.top = first_transform->position.y + first_collider->localBb.down < 0;
-				first_collision->out.down = first_transform->position.y + first_collider->localBb.top > screen_height;
+				const float first_local_x = first_transform->position.x + first_collider->localBb.x;
+				const float first_local_y = first_transform->position.y + first_collider->localBb.y;
+				const float first_w = first_collider->localBb.w;
+				const float first_h = first_collider->localBb.h;
+
+				first_collision->boundary = !CheckAabbCollision(
+					first_local_x, first_local_y, first_w, first_h,
+					screen_center_x, screen_center_y, screen_width, screen_height);
 
 				for (uint16_t j = 0; j < second_count; ++j)
 				{
@@ -119,16 +136,18 @@ namespace Engine
 					const Collider *const second_collider = second_colliders + second_index;
 					Collision *const second_collision = second_collisions + second_index;
 
-					second_collision->out.left = second_transform->position.x + second_collider->localBb.left < 0;
-					second_collision->out.right = second_transform->position.x + second_collider->localBb.right > screen_width;
-					second_collision->out.top = second_transform->position.y + second_collider->localBb.down < 0;
-					second_collision->out.down = second_transform->position.y + second_collider->localBb.top > screen_height;
+					const float second_local_x = second_transform->position.x + second_collider->localBb.x;
+					const float second_local_y = second_transform->position.y + second_collider->localBb.y;
+					const float second_w = second_collider->localBb.w;
+					const float second_h = second_collider->localBb.h;
 
-					const bool collided =
-						first_transform->position.x + first_collider->localBb.left < second_transform->position.x + second_collider->localBb.right &&
-						first_transform->position.x + first_collider->localBb.right > second_transform->position.x + second_collider->localBb.left &&
-						first_transform->position.y + first_collider->localBb.down < second_transform->position.y + second_collider->localBb.top &&
-						first_transform->position.y + first_collider->localBb.top > second_transform->position.y + second_collider->localBb.down;
+					second_collision->boundary = !CheckAabbCollision(
+						second_local_x, second_local_y, second_w, second_h,
+						screen_center_x, screen_center_y, screen_width, screen_height);
+
+					const bool collided = CheckAabbCollision(
+						first_local_x, first_local_y, first_w, first_h,
+						second_local_x, second_local_y, second_w, second_h);
 
 					if (collided)
 					{

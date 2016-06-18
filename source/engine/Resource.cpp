@@ -17,16 +17,16 @@ namespace Engine
 		handle.header.type = RESOURCE_TYPE_SPRITE;
 		handle.header.padding = 0;
 
-		ResolveSprite(handle) = sprite;
+		*ResolveSprite(handle) = sprite;
 
 		return handle;
 	}
 
-	void DestroySprite(ResourceHandle handle)
+	void DestroySprite(const ResourceHandle& handle)
 	{
 		Resources *const resources = g_context->resources;
 
-		ISprite *const sprite = ResolveSprite(handle);
+		ISprite *const sprite = *ResolveSprite(handle);
 		sprite->destroy();
 
 		resources->caches[RESOURCE_TYPE_SPRITE].Free(handle.index);

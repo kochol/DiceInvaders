@@ -23,7 +23,7 @@ namespace Game
 	{
 		uint16_t count = manager->components.Size();
 
-		Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_BOMB);
+		const Engine::LayerId layer = Engine::LAYER_ID_BOMB;
 		const uint16_t *const indexes = Engine::ResolveModelIndexes(layer);
 		Engine::BaseComponent *const model_components = Engine::ResolveModelComponentData(layer);
 		Engine::Collision *const collisions = Engine::ResolveModelCollisionData(layer);;
@@ -33,7 +33,7 @@ namespace Game
 			const uint16_t index = indexes[i];
 
 			if (collisions[index].collidedLayer != Engine::LAYER_ID_NONE ||
-				collisions[index].out.any)
+				collisions[index].boundary)
 			{
 				if (collisions[index].collidedLayer == Engine::LAYER_ID_PLAYER)
 					DamagePlayer();
@@ -59,8 +59,7 @@ namespace Game
 		const uint16_t *const indexes = manager->components.Indexes();
 		Bomb *const bombs = manager->components.Data<Bomb>();
 
-		Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_BOMB);
-		Engine::Transform *const transforms = Engine::ResolveModelTransformData(layer);
+		Engine::Transform *const transforms = Engine::ResolveModelTransformData(Engine::LAYER_ID_BOMB);
 
 		const float move = Engine::DeltaTime() * 200.f;
 
@@ -80,15 +79,16 @@ namespace Game
 
 	Engine::EntityHandle SpawnBomb(float x, float y)
 	{
-		Engine::ComponentManager &manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_BOMB);
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_BOMB);
 		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LAYER_ID_BOMB);
 
-		Engine::ResourceHandle sprite = reinterpret_cast<_BombManager*>(manager.customData)->sprite;
+		Engine::ResourceHandle sprite = reinterpret_cast<_BombManager*>(manager->customData)->sprite;
 		const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
 
 		Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_BOMB, model);
 
-		Engine::ResolveModelTransform(model) = { {x, y} };
+		*Engine::ResolveModelTransform(model) = { {x, y} };
+		*Engine::ResolveModelCollider(model) = { { 16.f, 6.f, 16.f, 16.f } };
 
 		return entity;
 	}

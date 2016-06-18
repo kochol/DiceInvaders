@@ -34,7 +34,7 @@ namespace Game
 	{
 		uint16_t count = manager->components.Size();
 
-		Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_ALIEN);
+		const Engine::LayerId layer = Engine::LAYER_ID_ALIEN;
 		const uint16_t *const indexes = Engine::ResolveModelIndexes(layer);
 		Engine::BaseComponent *const model_components = Engine::ResolveModelComponentData(layer);
 		Engine::Collision *const collisions = Engine::ResolveModelCollisionData(layer);;
@@ -44,7 +44,7 @@ namespace Game
 			const uint16_t index = indexes[i];
 
 			if (collisions[index].collidedLayer != Engine::LAYER_ID_NONE ||
-				collisions[index].out.any)
+				collisions[index].boundary)
 			{
 				if (collisions[index].collidedLayer == Engine::LAYER_ID_PLAYER)
 					DamagePlayer();
@@ -81,20 +81,14 @@ namespace Game
 			const float move_x = data->shouldChangeDirection ? 0.f : 32.f * data->moveDirection;
 			const float move_y = data->shouldChangeDirection ? 32.f : 0.f;
 
-			const Engine::ResourceHandle newSprite = data->sprite[data->currentSprite];
-
-
 			const uint16_t *const indexes = manager->components.Indexes();
 			Alien *const aliens = manager->components.Data<Alien>();
 
-			Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_ALIEN);
-			Engine::Transform *const transforms = Engine::ResolveModelTransformData(layer);
-			Engine::ResourceHandle *const sprites = Engine::ResolveModelSpriteData(layer);
+			Engine::Layer *const layer = Engine::ResolveLayer(Engine::LAYER_ID_ALIEN);
+			Engine::Transform *const transforms = Engine::ResolveModelTransformData(*layer);
 
 			float min_x = static_cast<float>(Engine::GetConfig().screen_height);
 			float max_x = 0.f;
-			float min_y = static_cast<float>(Engine::GetConfig().screen_height);
-			float max_y = 0.f;
 
 			for (uint16_t i = 0; i < count; ++i)
 			{
@@ -103,14 +97,10 @@ namespace Game
 
 				transforms[modelIndex].position.x += move_x;
 				transforms[modelIndex].position.y += move_y;
-				sprites[modelIndex] = newSprite;
-
+				
 				min_x = min(min_x, transforms[modelIndex].position.x);
 				max_x = max(max_x, transforms[modelIndex].position.x);
-				min_y = min(min_y, transforms[modelIndex].position.y);
-				max_y = max(max_y, transforms[modelIndex].position.y);
 
-				const float rnd = Engine::Random();
 				if (Engine::Time() - aliens[index].lastDroped > 1.f &&
 					Engine::Random() < bombDropChance)
 				{
@@ -135,8 +125,9 @@ namespace Game
 
 		_AlienManager *const data = reinterpret_cast<_AlienManager*>(manager->customData);
 
-		Engine::Layer &layer = Engine::ResolveLayer(Engine::LAYER_ID_ALIEN);
-		Engine::Transform *const transforms = Engine::ResolveModelTransformData(layer);
+		Engine::Layer *const layer = Engine::ResolveLayer(Engine::LAYER_ID_ALIEN);
+		Engine::Transform *const transforms = Engine::ResolveModelTransformData(*layer);
+		Engine::Collider *const colliders = Engine::ResolveModelColliderData(*layer);
 
 		data->moveDirection = 1;
 		data->shouldChangeDirection = false;
@@ -147,7 +138,7 @@ namespace Game
 			for (int16_t j = 0; j < 5; j++)
 			{
 				const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LAYER_ID_ALIEN);
-				Engine::ResourceHandle sprite = reinterpret_cast<_AlienManager*>(manager->customData)->sprite[0];
+				Engine::ResourceHandle sprite = reinterpret_cast<_AlienManager*>(manager->customData)->sprite[j < 2];
 				const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
 
 				Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_ALIEN, model);
@@ -157,6 +148,8 @@ namespace Game
 
 				transforms[model.index].position.x = static_cast<float>(i * 35);
 				transforms[model.index].position.y = static_cast<float>(j * 35 + 100);
+
+				colliders[model.index] = { { 16.f, 30.f, 16.f, 22.f } };
 			}
 		}
 	}
