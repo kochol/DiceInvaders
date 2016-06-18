@@ -66,6 +66,7 @@ namespace Engine
 	{
 		LayerId id;
 		RosterPool models;
+		BoundingBox boundingBox;
 	};
 
 	struct World

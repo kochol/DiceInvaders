@@ -16,6 +16,7 @@ namespace Engine
 	void PostUpdate();
 	void ShutdownComponents();
 
+	void UpdateBoundingBoxes();
 	void DetectCollisions();
 	void Render();
 

@@ -83,6 +83,54 @@ namespace Engine
 			abs(y1 - y2) * 2.f < h1 + h2;
 	}
 
+	void UpdateBoundingBoxes()
+	{
+		World *const world = g_context->world;
+
+		const float screen_width = ScreenWidth();
+		const float screen_height = ScreenHeight();
+
+		const float screen_center_x = screen_width / 2;
+		const float screen_center_y = screen_height / 2;
+
+		for (auto& layer : world->layers)
+		{
+			float min_x = screen_width;
+			float max_x = 0;
+			float min_y = screen_height;
+			float max_y = 0;
+
+			const uint16_t count = ResolveModelCount(*layer);
+
+			const uint16_t *const indexes = ResolveModelIndexes(*layer);
+			Transform *const transforms = ResolveModelTransformData(*layer);
+			Collider *const colliders = ResolveModelColliderData(*layer);
+			Collision *const collisions = ResolveModelCollisionData(*layer);
+
+			for (uint16_t i = 0; i < count; ++i)
+			{
+				const uint16_t index = indexes[i];
+				const Transform *const transform = transforms + index;
+				const Collider *const collider = colliders + index;
+				Collision *const collision = collisions + index;
+
+				const float local_x = transform->position.x + collider->localBb.x;
+				const float local_y = transform->position.y + collider->localBb.y;
+				const float w = collider->localBb.w;
+				const float h = collider->localBb.h;
+
+				collision->boundary = !CheckAabbCollision(
+					local_x, local_y, w, w,
+					screen_center_x, screen_center_y, screen_width, screen_height);
+			}
+
+			layer->boundingBox.x = (min_x + max_x) / 2.f;
+			layer->boundingBox.y = (min_y + max_y) / 2.f;
+			layer->boundingBox.w = max_x - min_x;
+			layer->boundingBox.h = max_y - min_y;
+		}
+	}
+
 	void DetectCollisions()
 	{
 		World *const world = g_context->world;
