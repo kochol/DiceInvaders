@@ -1,43 +1,88 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{e73f5f55-113d-49f2-b5f4-d96e318bd001}</UniqueIdentifier>
+    <Filter Include="engine">
+      <UniqueIdentifier>{228faea8-f7ca-45f8-9f78-6efb7a9e5b6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{72fa066e-ea02-4390-be18-087a59ebbaeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\core">
+      <UniqueIdentifier>{c7bf32b6-ffce-4ea9-81ef-06f87d5e8f2d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DataTypes.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="DiceInvaders.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="RosteredPool.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="HandleManager.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
+    <ClCompile Include="source\game\Alien.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="source\game\Player.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\engine\core\EntityHandleManager.cpp">
+      <Filter>engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\engine\core\RosterPool.cpp">
+      <Filter>engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\engine\Core.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="source\engine\ModelManager.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="source\engine\Resource.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="source\game\Rocket.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="source\game\Game.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="source\game\Bomb.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="source\engine\Physics.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HandleManager.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="ModelManager.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="RosteredPool.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Core.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Resource.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
+    <ClInclude Include="source\game\Alien.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="source\game\Player.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="source\engine\core\EntityHandleManager.h">
+      <Filter>engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\engine\core\Enums.h">
+      <Filter>engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\engine\core\Handle.h">
+      <Filter>engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\engine\core\Library.h">
+      <Filter>engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\engine\core\RosterPool.h">
+      <Filter>engine\core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\engine\Engine.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="source\engine\EngineTypes.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="source\game\Rocket.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="source\game\Game.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="source\game\Bomb.h">
+      <Filter>game</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

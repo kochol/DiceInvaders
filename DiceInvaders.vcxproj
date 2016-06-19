@@ -18,6 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\engine\Core.cpp" />
+    <ClCompile Include="source\engine\core\EntityHandleManager.cpp" />
+    <ClCompile Include="source\engine\core\RosterPool.cpp" />
+    <ClCompile Include="source\engine\ModelManager.cpp" />
+    <ClCompile Include="source\engine\Physics.cpp" />
+    <ClCompile Include="source\engine\Resource.cpp" />
+    <ClCompile Include="source\game\Alien.cpp" />
+    <ClCompile Include="source\game\Bomb.cpp" />
+    <ClCompile Include="source\game\Game.cpp" />
+    <ClCompile Include="source\game\Player.cpp" />
+    <ClCompile Include="source\game\Rocket.cpp" />
+    <ClCompile Include="source\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\engine\core\EntityHandleManager.h" />
+    <ClInclude Include="source\engine\core\Enums.h" />
+    <ClInclude Include="source\engine\core\Handle.h" />
+    <ClInclude Include="source\engine\core\Library.h" />
+    <ClInclude Include="source\engine\core\RosterPool.h" />
+    <ClInclude Include="source\engine\Engine.h" />
+    <ClInclude Include="source\engine\EngineTypes.h" />
+    <ClInclude Include="source\game\Alien.h" />
+    <ClInclude Include="source\game\Bomb.h" />
+    <ClInclude Include="source\game\Game.h" />
+    <ClInclude Include="source\game\Player.h" />
+    <ClInclude Include="source\game\Rocket.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AA96131E-A07B-464A-A210-BB16AF4388E7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -29,14 +57,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -71,12 +99,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>build\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>build\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -89,6 +126,10 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>_UNICODE;UNICODE;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
+      <MultiProcessorCompilation>
+      </MultiProcessorCompilation>
+      <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -119,6 +160,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>_UNICODE;UNICODE;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
+      <MultiProcessorCompilation>
+      </MultiProcessorCompilation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,21 +191,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="DataTypes.h" />
-    <ClInclude Include="DiceInvaders.h" />
-    <ClInclude Include="Engine.h" />
-    <ClInclude Include="HandleManager.h" />
-    <ClInclude Include="RosteredPool.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Core.cpp" />
-    <ClCompile Include="HandleManager.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="ModelManager.cpp" />
-    <ClCompile Include="Resource.cpp" />
-    <ClCompile Include="RosteredPool.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

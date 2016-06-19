@@ -14,7 +14,14 @@ namespace Engine
 		virtual void draw(int x, int y) = 0;
 	};
 
-	struct IDiceInvaders
+	struct KeyStatus
+	{
+		bool fire; // space
+		bool left; // left arrow
+		bool right; // right arrow
+	};
+
+	struct ILibrary
 	{
 		// Destroys the dice invaders instance
 		virtual void destroy() = 0;
@@ -37,17 +44,10 @@ namespace Engine
 		// Return the total time spent in the game, in seconds.
 		virtual float getElapsedTime() = 0;
 
-		struct KeyStatus
-		{
-			bool fire; // space
-			bool left; // left arrow
-			bool right; // right arrow
-		};
-
 		// Returns the keyboard status. If a flag is set, the corresponding key is being held down.
 		virtual void getKeyStatus(KeyStatus& keys) = 0;
 	};
 
 	// A factory type for creating IDiceInvaders instances.
-	typedef IDiceInvaders* (__cdecl DiceInvadersFactoryType)();
+	typedef ILibrary* (__cdecl LibraryFactoryType)();
 }
