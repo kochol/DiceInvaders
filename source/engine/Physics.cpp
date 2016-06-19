@@ -108,7 +108,7 @@ namespace Engine
 				global_aabb.center.y = transform->position.y + h_size;
 				global_aabb.halfSize = { h_size, h_size };
 
-				collision->boundary = !CheckAabbInside(
+				collision->boundary = !CheckAabbCollision(
 					screenAabb,
 					global_aabb);
 			}

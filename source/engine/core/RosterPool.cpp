@@ -25,6 +25,7 @@ namespace Engine
 		{
 			item_size[i] = _item_size.begin()[i];
 			buffer[i] = reinterpret_cast<uint8_t*>(malloc(_max_item_count * item_size[i]));
+			assert(buffer[i] != nullptr);
 		}
 
 		max_item_count = _max_item_count;

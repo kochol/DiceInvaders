@@ -9,7 +9,6 @@ namespace Game
 	{
 		Engine::ResourceHandle sprite[2];
 		float lastMoved;
-		int currentSprite;
 		int moveDirection;
 		bool shouldChangeDirection;
 	};
@@ -23,7 +22,6 @@ namespace Game
 		data->sprite[0] = Engine::LoadSprite("enemy1.bmp");
 		data->sprite[1] = Engine::LoadSprite("enemy2.bmp");
 		data->lastMoved = 0.f;
-		data->currentSprite = 0;
 		data->moveDirection = 1;
 		data->shouldChangeDirection = false;
 
@@ -76,19 +74,23 @@ namespace Game
 
 			const float bombDropChance = 1.5f / static_cast<float>(count + 10);
 			
-			data->currentSprite = 1 - data->currentSprite;
+			Engine::Layer *const layer = Engine::ResolveLayer(Engine::LAYER_ID_ALIEN);
+
+			const float min_x = layer->boundingBox.center.x - layer->boundingBox.halfSize.x;
+			const float max_x = layer->boundingBox.center.x + layer->boundingBox.halfSize.x;
+			data->shouldChangeDirection =
+				(data->moveDirection < 0 && min_x < 16.f) ||
+				(data->moveDirection > 0 && max_x > Engine::g_context->config->screen_width - 16.f);
+
+			if (data->shouldChangeDirection)
+				data->moveDirection = -data->moveDirection;
 
 			const float move_x = data->shouldChangeDirection ? 0.f : 32.f * data->moveDirection;
 			const float move_y = data->shouldChangeDirection ? 32.f : 0.f;
 
 			const uint16_t *const indexes = manager->components.Indexes();
 			Alien *const aliens = manager->components.Data<Alien>();
-
-			Engine::Layer *const layer = Engine::ResolveLayer(Engine::LAYER_ID_ALIEN);
 			Engine::Transform *const transforms = Engine::ResolveModelTransformData(*layer);
-
-			float min_x = static_cast<float>(Engine::GetConfig().screen_height);
-			float max_x = 0.f;
 
 			for (uint16_t i = 0; i < count; ++i)
 			{
@@ -98,9 +100,6 @@ namespace Game
 				transforms[modelIndex].position.x += move_x;
 				transforms[modelIndex].position.y += move_y;
 				
-				min_x = min(min_x, transforms[modelIndex].position.x);
-				max_x = max(max_x, transforms[modelIndex].position.x);
-
 				if (Engine::Time() - aliens[index].lastDroped > 1.f &&
 					Engine::Random() < bombDropChance)
 				{
@@ -108,13 +107,6 @@ namespace Game
 					SpawnBomb(transforms[modelIndex].position.x, transforms[modelIndex].position.y);
 				}
 			}
-
-			data->shouldChangeDirection =
-				(data->moveDirection < 0 && min_x < 0.5f) ||
-				(data->moveDirection > 0 && max_x > Engine::g_context->config->screen_width - 64.f);
-
-			if (data->shouldChangeDirection)
-				data->moveDirection = -data->moveDirection;
 		}
 	}
 
