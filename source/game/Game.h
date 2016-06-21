@@ -6,8 +6,9 @@ namespace Game
 	enum struct GameState
 	{
 		NONE = 0,
-		IN_GAME = 1,
-		POST_GAME = 2
+		PRE_GAME = 1,
+		IN_GAME = 2,
+		POST_GAME = 3
 	};
 
 	struct GameSession
@@ -19,13 +20,14 @@ namespace Game
 
 	extern GameSession g_currentSession;
 
-	Engine::EntityHandle SpawnPlayer();
 	void DamagePlayer();
 	void ScorePlayer();
 
+	Engine::EntityHandle SpawnPlayer();
+	void DestroyPlayer();
 	Engine::EntityHandle SpawnRocket(float x, float y);
-
 	Engine::EntityHandle SpawnBomb(float x, float y);
+	void DestroyAliens();
 
 	void StartGame();
 	void GameOver();

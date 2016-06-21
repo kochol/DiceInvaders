@@ -80,6 +80,10 @@ namespace Engine
 		ComponentManager *components[COMPONENT_TYPE_MAX];
 
 		std::vector<std::pair<LayerId, LayerId>> collisionMasks;
+
+		std::vector<ComponentHandle> ToBeDeletedComponents;
+		std::vector<ComponentHandle> ToBeDeletedModels;
+		std::vector<EntityHandle> ToBeDeletedEntities;
 	};
 
 	struct FrameData

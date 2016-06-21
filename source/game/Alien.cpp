@@ -18,7 +18,7 @@ namespace Game
 		manager->components.Init(100, { sizeof(Alien) });
 
 		_AlienManager *const data = new _AlienManager();
-		
+
 		data->sprite[0] = Engine::LoadSprite("enemy1.bmp");
 		data->sprite[1] = Engine::LoadSprite("enemy2.bmp");
 		data->lastMoved = 0.f;
@@ -73,7 +73,7 @@ namespace Game
 			const uint16_t count = manager->components.Size();
 
 			const float bombDropChance = 1.5f / static_cast<float>(count + 10);
-			
+
 			Engine::Layer *const layer = Engine::ResolveLayer(Engine::LAYER_ID_ALIEN);
 
 			const float min_x = layer->boundingBox.center.x - layer->boundingBox.halfSize.x;
@@ -99,7 +99,7 @@ namespace Game
 
 				transforms[modelIndex].position.x += move_x;
 				transforms[modelIndex].position.y += move_y;
-				
+
 				if (Engine::Time() - aliens[index].lastDroped > 1.f &&
 					Engine::Random() < bombDropChance)
 				{
@@ -125,7 +125,7 @@ namespace Game
 		data->shouldChangeDirection = false;
 		data->lastMoved = Engine::FrameData().time;
 
-		for (int16_t i = 0; i < 11; i ++)
+		for (int16_t i = 0; i < 11; i++)
 		{
 			for (int16_t j = 0; j < 5; j++)
 			{
@@ -134,7 +134,7 @@ namespace Game
 				const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
 
 				Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_ALIEN, model);
-				
+
 				Alien *const componentData = manager->components.Resolve<Alien>(component.index);
 				componentData->lastDroped = 0.f;
 
@@ -150,4 +150,30 @@ namespace Game
 	{
 		delete manager->customData;
 	}
+
+	void DestroyAliens()
+	{
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ALIEN);
+
+		uint16_t count = manager->components.Size();
+
+		const Engine::LayerId layer = Engine::LAYER_ID_ALIEN;
+		const uint16_t *const indexes = Engine::ResolveModelIndexes(layer);
+		Engine::BaseComponent *const model_components = Engine::ResolveModelComponentData(layer);
+
+		for (uint16_t i = 0; i < count; ++i)
+		{
+			const uint16_t index = indexes[i];
+
+			const Engine::EntityHandle entity = model_components[index].entity;
+			const Engine::ComponentHandle model = model_components[index].model;
+			const Engine::ComponentHandle component = manager->componentMap[entity];
+
+			Engine::DestroyModel(model);
+			Engine::DestroyEntity(entity);
+			manager->components.Free(component.index);
+			manager->componentMap.erase(entity);
+		}
+	}
 }
+

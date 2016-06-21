@@ -41,6 +41,11 @@ namespace Game
 			playerCompData->lastFired = Engine::Time();
 			SpawnRocket(transform->position.x, transform->position.y - 35);
 		}
+
+
+		char playerHealth[100];
+		sprintf_s(playerHealth, "player health: %d", playerCompData->health);
+		Engine::g_context->system->drawText(0, 40, playerHealth);
 	}
 
 	Engine::EntityHandle SpawnPlayer()
@@ -72,6 +77,31 @@ namespace Game
 		return entity;
 	}
 
+	void DestroyPlayer()
+	{
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_PLAYER);
+
+		uint16_t count = manager->components.Size();
+
+		const Engine::LayerId layer = Engine::LAYER_ID_ALIEN;
+		const uint16_t *const indexes = Engine::ResolveModelIndexes(layer);
+		Engine::BaseComponent *const model_components = Engine::ResolveModelComponentData(layer);
+
+		for (uint16_t i = 0; i < count; ++i)
+		{
+			const uint16_t index = indexes[i];
+
+			const Engine::EntityHandle entity = model_components[index].entity;
+			const Engine::ComponentHandle model = model_components[index].model;
+			const Engine::ComponentHandle component = manager->componentMap[entity];
+
+			Engine::DestroyModel(model);
+			Engine::DestroyEntity(entity);
+			manager->components.Free(component.index);
+			manager->componentMap.erase(entity);
+		}
+	}
+
 	void ShutdownPlayerManager(Engine::ComponentManager* const manager)
 	{
 		delete manager->customData;
@@ -86,7 +116,7 @@ namespace Game
 
 		if (componentData->health <= 0)
 		{
-			g_currentSession.state = GameState::POST_GAME;
+			GameOver();
 			//TODO: kill player
 		}
 	}
