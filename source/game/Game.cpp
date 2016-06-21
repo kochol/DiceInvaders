@@ -23,10 +23,7 @@ namespace Game
 	{
 		if (g_currentSession.state == GameState::IN_GAME)
 		{
-			Engine::PreUpdate();
 			Engine::Update();
-			Engine::Render();
-			Engine::PostUpdate();
 		}
 		else if (g_currentSession.state == GameState::PRE_GAME)
 		{

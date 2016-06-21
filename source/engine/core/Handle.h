@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace Engine
 {
@@ -37,8 +38,11 @@ namespace Engine
 		}
 	};
 
-	template<typename T1, typename T2 >
+	template<typename T1, typename T2>
 	using HandleHashMap = std::unordered_map<T1, T2, HandleHasher<T1>, HandleComparer<T1>>;
+
+	template<typename T>
+	using HandleHashSet = std::unordered_set<T, HandleHasher<T>, HandleComparer<T>>;
 
 	struct alignas(2) ResourceHandleHeader
 	{

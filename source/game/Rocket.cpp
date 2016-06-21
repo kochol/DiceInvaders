@@ -8,87 +8,99 @@ namespace Game
 		Engine::ResourceHandle sprite;
 	};
 
-	void InitRocketManager(Engine::ComponentManager *const manager)
+	void InitRocketManager(Engine::ComponentManager::LayerData *const data)
 	{
-		manager->components.Init(100, { sizeof(Rocket) });
+		if (data->layerId != Engine::LAYER_ID_ROCKET)
+			return;
 
-		_RocketManager *const data = new _RocketManager;
-		data->sprite = Engine::LoadSprite("rocket.bmp");
+		const Engine::World::LayerData *const world_layer_data = Engine::GetLayerData(data->layerId);
 
-		manager->customData = data;
+		data->components.Init(world_layer_data->maxEntities, { sizeof(Engine::BaseComponent) });
+
+		_RocketManager *const custom_data = new _RocketManager;
+		custom_data->sprite = Engine::LoadSprite("rocket.bmp");
+
+		data->customData = custom_data;
 	}
 
-	void HandleRocketCollisions(Engine::ComponentManager* const manager)
+	void HandleRocketCollisions(Engine::ComponentManager::LayerData *const data)
 	{
-		uint16_t count = manager->components.Size();
+		uint16_t count = data->components.Size();
+		if (count == 0)
+			return;
 
-		const Engine::LayerId layer = Engine::LAYER_ID_ROCKET;
-		const uint16_t *const indexes = Engine::ResolveModelIndexes(layer);
-		Engine::BaseComponent *const model_components = Engine::ResolveModelComponentData(layer);
-		Engine::Collision *const collisions = Engine::ResolveModelCollisionData(layer);;
+		const uint16_t *const indexes = data->components.Indexes();
+		const Engine::BaseComponent *const components = data->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
+
+		Engine::Collision *const model_collisions = Engine::ResolveComponentSegmentData<Engine::Collision>(
+			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_COLLISION);
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			const uint16_t index = indexes[i];
+			const Engine::BaseComponent* component = components + index;
 
-			if (collisions[index].collidedLayers ||
-				collisions[index].boundary)
+			const Engine::Collision *const model_collision = model_collisions + component->model.index;
+
+			if (model_collision->collidedLayers ||
+				model_collision->boundary)
 			{
-				if (collisions[index].collidedLayers & (1 << Engine::LAYER_ID_ALIEN))
+				if (model_collision->collidedLayers & (1 << Engine::LAYER_ID_ALIEN))
 					ScorePlayer();
 
-				const Engine::EntityHandle entity = model_components[index].entity;
-				const Engine::ComponentHandle model = model_components[index].model;
-				const Engine::ComponentHandle component = manager->componentMap[entity];
-
-				Engine::DestroyModel(model);
-				Engine::DestroyEntity(entity);
-				manager->components.Free(component.index);
-				manager->componentMap.erase(entity);
-				--i;
-				--count;
+				Engine::DestroyEntity(component->entity);
+				Engine::DestroyComponent(component->model);
+				Engine::DestroyComponent(component->self);
 			}
 		}
 	}
 
-	void UpdateRockets(Engine::ComponentManager* const manager)
+	void UpdateRockets(Engine::ComponentManager::LayerData *const data)
 	{
-		const uint16_t count = manager->components.Size();
+		const uint16_t count = data->components.Size();
+		if (count == 0)
+			return;
 
-		const uint16_t *const indexes = manager->components.Indexes();
-		Rocket *const rockets = manager->components.Data<Rocket>();
+		const uint16_t *const indexes = data->components.Indexes();
+		Engine::BaseComponent *const components = data->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
 
-		Engine::Transform *const transforms = Engine::ResolveModelTransformData(Engine::LAYER_ID_ROCKET);
+		Engine::Transform *const transforms = Engine::ResolveComponentSegmentData<Engine::Transform>(
+			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_TRANSFORM);
 
 		const float move = Engine::DeltaTime() * 1000.f;
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			const uint16_t index = indexes[i];
-			const uint16_t modelIndex = rockets[index].model.index;
+			const uint16_t model_index = components[index].model.index;
 
-			transforms[modelIndex].position.y -= move;
+			transforms[model_index].position.y -= move;
 		}
 	}
 
-	void ShutdownRocketManager(Engine::ComponentManager* const manager)
+	void ShutdownRocketManager(Engine::ComponentManager::LayerData *const data)
 	{
-		delete manager->customData;
+		if (data->layerId != Engine::LAYER_ID_ROCKET)
+			return;
+
+		delete data->customData;
 	}
 
 	Engine::EntityHandle SpawnRocket(float x, float y)
 	{
 		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ROCKET);
+		Engine::ComponentManager::LayerData *const layer = &manager->layerData[Engine::LAYER_ID_ROCKET];
+
 		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LAYER_ID_ROCKET);
+		const Engine::ComponentHandle model = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_MODEL);
+		const Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_ROCKET);
 
-		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(manager->customData)->sprite;
-		const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
+		Engine::ResolveComponentSegment<Engine::Transform>(model, Engine::MODEL_DATA_TRANSFORM)->position = {x, y};
 
-		Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_ROCKET, model);
+		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(layer->customData)->sprite;
+		*Engine::ResolveComponentSegment<Engine::ResourceHandle>(model, Engine::MODEL_DATA_SPRITE) = sprite;
 
-		Engine::ResolveModelTransform(model)->position = {x, y};
-
-		Engine::Collider *const collider = Engine::ResolveModelCollider(model);
+		Engine::Collider *const collider = Engine::ResolveComponentSegment<Engine::Collider>(model, Engine::MODEL_DATA_COLLIDER);
 		collider->localBb.center = { 16.f, 16.5f };
 		collider->localBb.halfSize = { 2.f, 9.5f };
 

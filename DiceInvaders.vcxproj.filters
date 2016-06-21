@@ -46,6 +46,12 @@
     <ClCompile Include="source\engine\Physics.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="source\engine\core\ComponentSystem.cpp">
+      <Filter>engine\core</Filter>
+    </ClCompile>
+    <ClCompile Include="source\engine\Rendering.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\game\Alien.h">

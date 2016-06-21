@@ -20,10 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\engine\Core.cpp" />
+    <ClCompile Include="source\engine\core\ComponentSystem.cpp" />
     <ClCompile Include="source\engine\core\EntityHandleManager.cpp" />
     <ClCompile Include="source\engine\core\RosterPool.cpp" />
     <ClCompile Include="source\engine\ModelManager.cpp" />
     <ClCompile Include="source\engine\Physics.cpp" />
+    <ClCompile Include="source\engine\Rendering.cpp" />
     <ClCompile Include="source\engine\Resource.cpp" />
     <ClCompile Include="source\game\Alien.cpp" />
     <ClCompile Include="source\game\Bomb.cpp" />
@@ -130,6 +132,7 @@
       <MultiProcessorCompilation>
       </MultiProcessorCompilation>
       <ExceptionHandling>Sync</ExceptionHandling>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -165,6 +168,7 @@
       </MultiProcessorCompilation>
       <ExceptionHandling>Sync</ExceptionHandling>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

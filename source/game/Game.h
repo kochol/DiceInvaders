@@ -3,6 +3,12 @@
 
 namespace Game
 {
+	enum ComponentDataSegment
+	{
+		COMPONENT_DATA_BASE = 0,
+		COMPONENT_DATA_CUSTOM = 1
+	};
+
 	enum struct GameState
 	{
 		NONE = 0,
