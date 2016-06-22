@@ -94,7 +94,7 @@ namespace Engine
 
 		manager->type = type;
 
-		for (unsigned i = 0; i < COMPONENT_TYPE_MAX; i++)
+		for (unsigned i = 0; i < LAYER_ID_MAX; i++)
 			manager->layer_data[i].layer_id = static_cast<LayerId>(i);
 
 		for (auto& callback : manager->callbacks)

@@ -27,9 +27,9 @@ namespace Engine
 		EntityHandle Create(const LayerId layer);
 
 		// Check whether the handle is valid
-		bool Valid(const EntityHandle handle) const;
+		bool Valid(const EntityHandle& handle) const;
 
 		// destroys the handle, making it availible for future creations
-		void Destroy(const EntityHandle handle);
+		void Destroy(const EntityHandle& handle);
 	};
 }

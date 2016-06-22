@@ -77,17 +77,17 @@ namespace Game
 
 		sprintf_s(buffer, "SCORE<1>");
 		Engine::DrawText((Engine::ScreenWidth() - 170 - char_width * strlen(buffer)) / 2, 0, buffer);
-		sprintf_s(buffer, "%04d", Score());
+		sprintf_s(buffer, "%04u", Score());
 		Engine::DrawText((Engine::ScreenWidth() - 170 - char_width * strlen(buffer)) / 2, 20, buffer);
 
 		sprintf_s(buffer, "HI-SCORE");
 		Engine::DrawText((Engine::ScreenWidth() - char_width * strlen(buffer)) / 2, 0, buffer);
-		sprintf_s(buffer, "%04d", HiScore());
+		sprintf_s(buffer, "%04u", HiScore());
 		Engine::DrawText((Engine::ScreenWidth() - char_width * strlen(buffer)) / 2, 20, buffer);
 
 		sprintf_s(buffer, "HEALTH<1>");
 		Engine::DrawText((Engine::ScreenWidth() + 170 - char_width * strlen(buffer)) / 2, 0, buffer);
-		sprintf_s(buffer, "%04d", player->health);
+		sprintf_s(buffer, "%04u", player->health);
 		Engine::DrawText((Engine::ScreenWidth() + 170 - char_width * strlen(buffer)) / 2, 20, buffer);
 	}
 
@@ -98,12 +98,12 @@ namespace Game
 
 		sprintf_s(buffer, "SCORE<1>");
 		Engine::DrawText((Engine::ScreenWidth() - 170 - char_width * strlen(buffer)) / 2, 0, buffer);
-		sprintf_s(buffer, "%04d", Score());
+		sprintf_s(buffer, "%04u", Score());
 		Engine::DrawText((Engine::ScreenWidth() - 170 - char_width * strlen(buffer)) / 2, 20, buffer);
 
 		sprintf_s(buffer, "HI-SCORE");
 		Engine::DrawText((Engine::ScreenWidth() - char_width * strlen(buffer)) / 2, 0, buffer);
-		sprintf_s(buffer, "%04d", HiScore());
+		sprintf_s(buffer, "%04u", HiScore());
 		Engine::DrawText((Engine::ScreenWidth() - char_width * strlen(buffer)) / 2, 20, buffer);
 
 		sprintf_s(buffer, "HEALTH<1>");
@@ -129,12 +129,12 @@ namespace Game
 
 		sprintf_s(buffer, "SCORE<1>");
 		Engine::DrawText((Engine::ScreenWidth() - 170 - char_width * strlen(buffer)) / 2, 0, buffer);
-		sprintf_s(buffer, "%04d", Score());
+		sprintf_s(buffer, "%04u", Score());
 		Engine::DrawText((Engine::ScreenWidth() - 170 - char_width * strlen(buffer)) / 2, 20, buffer);
 
 		sprintf_s(buffer, "HI-SCORE");
 		Engine::DrawText((Engine::ScreenWidth() - char_width * strlen(buffer)) / 2, 0, buffer);
-		sprintf_s(buffer, "%04d", HiScore());
+		sprintf_s(buffer, "%04u", HiScore());
 		Engine::DrawText((Engine::ScreenWidth() - char_width * strlen(buffer)) / 2, 20, buffer);
 
 		sprintf_s(buffer, "HEALTH<1>");

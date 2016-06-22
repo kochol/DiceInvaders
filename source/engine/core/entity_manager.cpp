@@ -50,13 +50,13 @@ namespace Engine
 		return handle;
 	}
 
-	bool EntityManager::Valid(const EntityHandle handle) const
+	bool EntityManager::Valid(const EntityHandle& handle) const
 	{
 		assert(handle.index < _salts.size());
 		return handle.header.salt == _salts[handle.index];
 	}
 
-	void EntityManager::Destroy(const EntityHandle handle)
+	void EntityManager::Destroy(const EntityHandle& handle)
 	{
 		assert(Valid(handle));
 
