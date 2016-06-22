@@ -32,11 +32,11 @@ namespace Engine
 		RosterPool();
 
 		// - allocates the internal buffers
-		// - _max_item_count is the pool item count
-		// - _item_size defines two things:
+		// - max_item_count is the pool item count
+		// - item_size defines two things:
 		//    - its count indicates the number of data arrays
 		//    - each item indicates the data type size of the coreresponding array
-		void Init(const uint16_t _max_item_count, std::initializer_list<size_t> _item_size);
+		void Init(const uint16_t max_item_count, std::initializer_list<size_t> item_size);
 		~RosterPool();
 
 		// - alloc / free from the pool.

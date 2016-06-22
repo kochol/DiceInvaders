@@ -18,8 +18,8 @@ namespace Engine
 	class EntityManager
 	{
 	private:
-		std::deque<uint16_t> _free_ids;
-		std::vector<uint8_t> _salts;
+		std::deque<uint16_t> free_ids;
+		std::vector<uint8_t> salts;
 
 	public:
 		// Creates a new entity in the specified layer.

@@ -116,14 +116,14 @@ namespace Engine
 
 		manager->component_map[entity] = component;
 
-		BaseComponent *const componentData = layer->components.Resolve<BaseComponent>(component.index);
-		componentData->self = component;
-		componentData->entity = entity;
+		BaseComponent *const component_data = layer->components.Resolve<BaseComponent>(component.index);
+		component_data->self = component;
+		component_data->entity = entity;
 
 		const ComponentManager *const model_manager = GetComponentManager(COMPONENT_TYPE_MODEL);
 		const auto model = model_manager->component_map.find(entity);
 		if (model != model_manager->component_map.end())
-			componentData->model = model->second;
+			component_data->model = model->second;
 
 		return component;
 	}

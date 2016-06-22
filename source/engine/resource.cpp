@@ -17,8 +17,8 @@ namespace Engine
 		ILibrary *const system = g_context->system;
 		Resources *const resources = g_context->resources;
 
-		const std::string fullName = "../data/" + name;
-		ISprite *const sprite = system->createSprite(fullName.c_str());
+		const std::string full_name = "../data/" + name;
+		ISprite *const sprite = system->createSprite(full_name.c_str());
 		assert(sprite != nullptr);
 
 		ResourceHandle handle;

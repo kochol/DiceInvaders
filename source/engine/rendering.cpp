@@ -15,14 +15,14 @@ namespace Engine
 		const Transform *const transforms,
 		const ResourceHandle *const sprites,
 		const uint16_t count,
-		const uint16_t *const iSpritesIndexes,
-		ISprite **const iSprites)
+		const uint16_t *const i_sprites_indexes,
+		ISprite **const i_sprites)
 	{
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			const uint16_t index = indexes[i];
-			const uint16_t iSpriteIndex = iSpritesIndexes[sprites[index].index];
-			ISprite *const sprite = iSprites[iSpriteIndex];
+			const uint16_t iSpriteIndex = i_sprites_indexes[sprites[index].index];
+			ISprite *const sprite = i_sprites[iSpriteIndex];
 			sprite->draw(
 				static_cast<int>(transforms[index].position.x),
 				static_cast<int>(transforms[index].position.y));
@@ -31,8 +31,8 @@ namespace Engine
 
 	void Render(ComponentManager::LayerData *const data)
 	{
-		ISprite **const iSprites = ResolveSpriteData();
-		const uint16_t *const iSpritesIndexes = ResolveSpriteIndexes();
+		ISprite **const i_sprites = ResolveSpriteData();
+		const uint16_t *const i_sprites_indexes = ResolveSpriteIndexes();
 
 		const uint16_t count = data->components.Size();
 		if (count == 0)
@@ -47,7 +47,7 @@ namespace Engine
 			transforms,
 			sprites,
 			count,
-			iSpritesIndexes,
-			iSprites);
+			i_sprites_indexes,
+			i_sprites);
 	}
 }
