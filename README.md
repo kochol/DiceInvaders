@@ -8,4 +8,6 @@ The game consists of two main parts:
 
 The main focus was on the good high-level design and performance of the engine, sacrifising the gamplay programming simplicity a bit. The algorithms and data layout used, are suitable for current scope of the problem. Changing the scope results in a new problem, requring new solutions.
 
-TODO: add a rough architecture and usage documentation of the engine
+# Building
+The project should build usign recent versions of Visual Studio (testet with VS2015). The resulting binary will be placed in the bin folder.
+The working directory should be set to the "\bin| folder instead of the default project's root.
