@@ -1,3 +1,11 @@
+/* ---------------------------------------------------------------------------
+**
+** handle.h
+** Engine handle types and utilities
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #pragma once
 #include <cstdint>
 #include <unordered_map>

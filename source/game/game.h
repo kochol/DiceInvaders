@@ -1,5 +1,13 @@
+/* ---------------------------------------------------------------------------
+**
+** game.h
+** Global game session logic
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #pragma once
-#include "../engine/Engine.h"
+#include "../engine/engine.h"
 
 namespace Game
 {
@@ -22,7 +30,7 @@ namespace Game
 		Engine::ComponentHandle player;
 		uint32_t hi_score = 0;
 		uint32_t score = 0;
-		GameState state;
+		GameState state = GAME_STATE_PRE_GAME;
 	};
 
 	extern GameSession g_currentSession;

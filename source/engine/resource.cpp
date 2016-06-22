@@ -1,4 +1,13 @@
-#include "Engine.h"
+/* ---------------------------------------------------------------------------
+**
+** resource.cpp
+** Asset management stuff, implemented as a part of "Model" component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "engine.h"
+
 #include <cassert>
 
 namespace Engine
@@ -26,13 +35,32 @@ namespace Engine
 	{
 		Resources *const resources = g_context->resources;
 
-		for (const auto resource : resources->toBeFreed)
+		for (const auto resource : resources->to_be_freed)
 		{
 			ISprite *const sprite = *ResolveSprite(resource);
 			sprite->destroy();
 
 			resources->caches[RESOURCE_TYPE_SPRITE].Free(resource.index);
 		}
-		resources->toBeFreed.clear();
+		resources->to_be_freed.clear();
+	}
+
+	void UnloadResources()
+	{
+		for (auto &pool : g_context->resources->caches)
+		{
+			const uint16_t count = pool.Size();
+			if (count == 0)
+				continue;
+
+			const uint16_t *const indexes = pool.Indexes();
+			ISprite **const i_sprites = pool.Data<ISprite*>();
+
+			for (unsigned i = 0; i < count; i++)
+			{
+				uint16_t index = indexes[i];
+				i_sprites[index]->destroy();
+			}
+		}
 	}
 }

@@ -1,6 +1,14 @@
+/* ---------------------------------------------------------------------------
+**
+** rocket.h
+** The Rocket component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #pragma once
 
-#include "../engine/Engine.h"
+#include "../engine/engine.h"
 
 namespace Game
 {

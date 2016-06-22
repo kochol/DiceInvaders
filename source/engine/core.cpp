@@ -1,6 +1,17 @@
-#include "Engine.h"
+/* ---------------------------------------------------------------------------
+**
+** core.cpp
+** Engine initialization and shutdown, and some utility functions
+** (everething that I didn't find a better place for :D)
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "engine.h"
+
 #include <cassert>
 #include <random>
+#include <windows.h>
 
 namespace Engine
 {
@@ -54,10 +65,17 @@ namespace Engine
 		_Context *const _context = reinterpret_cast<_Context*>(g_context);
 
 		ExecuteComponentCallbacks(CALLBACK_STAGE_SHUTDOWN);
+		UnloadResources();
 
 		delete _context->rnd_device;
 		delete _context->rnd_engine;
 		delete _context->rnd_dist;
+
+		delete _context->frame_data;
+		delete _context->world;
+
+		delete _context->resources;
+		delete _context->config;
 
 		_context->system->destroy();
 		FreeLibrary(_context->_lib);
@@ -104,19 +122,19 @@ namespace Engine
 	{
 		World::LayerData *const layer = GetLayerData(layer_id);
 
-		layer->layerId = layer_id;
-		layer->maxEntities = max_items;
+		layer->layer_id = layer_id;
+		layer->max_entities = max_items;
 	}
 
 	void CleanupEntities()
 	{
 		World *const world = g_context->world;
-		for (const auto entity : world->toBeFreedEntities)
+		for (const auto entity : world->to_be_freed_entities)
 		{
-			world->handleManager.Destroy(entity);
+			world->handle_manager.Destroy(entity);
 		}
 
-		world->toBeFreedEntities.clear();
+		world->to_be_freed_entities.clear();
 	}
 
 	float Random()

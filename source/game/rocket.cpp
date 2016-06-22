@@ -1,5 +1,13 @@
-#include "Rocket.h"
-#include "Game.h"
+/* ---------------------------------------------------------------------------
+**
+** rocket.cpp
+** The Rocket component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "rocket.h"
+#include "game.h"
 
 namespace Game
 {
@@ -10,17 +18,17 @@ namespace Game
 
 	void InitRocketManager(Engine::ComponentManager::LayerData *const data)
 	{
-		if (data->layerId != Engine::LAYER_ID_ROCKET)
+		if (data->layer_id != Engine::LAYER_ID_ROCKET)
 			return;
 
-		const Engine::World::LayerData *const world_layer_data = Engine::GetLayerData(data->layerId);
+		const Engine::World::LayerData *const world_layer_data = Engine::GetLayerData(data->layer_id);
 
-		data->components.Init(world_layer_data->maxEntities, { sizeof(Engine::BaseComponent) });
+		data->components.Init(world_layer_data->max_entities, { sizeof(Engine::BaseComponent) });
 
 		_RocketManager *const custom_data = new _RocketManager;
 		custom_data->sprite = Engine::LoadSprite("rocket.bmp");
 
-		data->customData = custom_data;
+		data->custom_data = custom_data;
 	}
 
 	void HandleRocketCollisions(Engine::ComponentManager::LayerData *const data)
@@ -33,7 +41,7 @@ namespace Game
 		const Engine::BaseComponent *const components = data->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
 
 		Engine::Collision *const model_collisions = Engine::ResolveComponentSegmentData<Engine::Collision>(
-			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_COLLISION);
+			Engine::COMPONENT_TYPE_MODEL, data->layer_id, Engine::MODEL_DATA_COLLISION);
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
@@ -42,10 +50,10 @@ namespace Game
 
 			const Engine::Collision *const model_collision = model_collisions + component->model.index;
 
-			if (model_collision->collidedLayers ||
+			if (model_collision->collided_layers ||
 				model_collision->boundary)
 			{
-				if (model_collision->collidedLayers & (1 << Engine::LAYER_ID_ALIEN))
+				if (model_collision->collided_layers & (1 << Engine::LAYER_ID_ALIEN))
 					ScorePlayer();
 
 				Engine::DestroyEntity(component->entity);
@@ -65,7 +73,7 @@ namespace Game
 		Engine::BaseComponent *const components = data->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
 
 		Engine::Transform *const transforms = Engine::ResolveComponentSegmentData<Engine::Transform>(
-			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_TRANSFORM);
+			Engine::COMPONENT_TYPE_MODEL, data->layer_id, Engine::MODEL_DATA_TRANSFORM);
 
 		const float move = Engine::DeltaTime() * 1000.f;
 
@@ -80,16 +88,16 @@ namespace Game
 
 	void ShutdownRocketManager(Engine::ComponentManager::LayerData *const data)
 	{
-		if (data->layerId != Engine::LAYER_ID_ROCKET)
+		if (data->layer_id != Engine::LAYER_ID_ROCKET)
 			return;
 
-		delete data->customData;
+		delete data->custom_data;
 	}
 
 	Engine::EntityHandle SpawnRocket(float x, float y)
 	{
 		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ROCKET);
-		Engine::ComponentManager::LayerData *const layer = &manager->layerData[Engine::LAYER_ID_ROCKET];
+		Engine::ComponentManager::LayerData *const layer = &manager->layer_data[Engine::LAYER_ID_ROCKET];
 
 		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LAYER_ID_ROCKET);
 		const Engine::ComponentHandle model = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_MODEL);
@@ -97,12 +105,12 @@ namespace Game
 
 		Engine::ResolveComponentSegment<Engine::Transform>(model, Engine::MODEL_DATA_TRANSFORM)->position = {x, y};
 
-		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(layer->customData)->sprite;
+		Engine::ResourceHandle sprite = reinterpret_cast<_RocketManager*>(layer->custom_data)->sprite;
 		*Engine::ResolveComponentSegment<Engine::ResourceHandle>(model, Engine::MODEL_DATA_SPRITE) = sprite;
 
 		Engine::Collider *const collider = Engine::ResolveComponentSegment<Engine::Collider>(model, Engine::MODEL_DATA_COLLIDER);
-		collider->localBb.center = { 16.f, 16.5f };
-		collider->localBb.halfSize = { 2.f, 9.5f };
+		collider->local_aabb.center = { 16.f, 16.5f };
+		collider->local_aabb.half_size = { 2.f, 9.5f };
 
 		return entity;
 	}
@@ -110,7 +118,7 @@ namespace Game
 	void DestroyRockets()
 	{
 		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ROCKET);
-		Engine::ComponentManager::LayerData *const layer = &manager->layerData[Engine::LAYER_ID_ROCKET];
+		Engine::ComponentManager::LayerData *const layer = &manager->layer_data[Engine::LAYER_ID_ROCKET];
 
 		uint16_t count = layer->components.Size();
 

@@ -1,4 +1,12 @@
-#include "Engine.h"
+/* ---------------------------------------------------------------------------
+**
+** rendering.cpp
+** Rendering stuff, implemented as a part of "Model" component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "engine.h"
 
 namespace Engine
 {

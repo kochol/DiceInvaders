@@ -19,34 +19,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\engine\Core.cpp" />
-    <ClCompile Include="source\engine\core\ComponentSystem.cpp" />
-    <ClCompile Include="source\engine\core\EntityHandleManager.cpp" />
-    <ClCompile Include="source\engine\core\RosterPool.cpp" />
-    <ClCompile Include="source\engine\ModelManager.cpp" />
-    <ClCompile Include="source\engine\Physics.cpp" />
-    <ClCompile Include="source\engine\Rendering.cpp" />
-    <ClCompile Include="source\engine\Resource.cpp" />
-    <ClCompile Include="source\game\Alien.cpp" />
-    <ClCompile Include="source\game\Bomb.cpp" />
-    <ClCompile Include="source\game\Game.cpp" />
-    <ClCompile Include="source\game\Player.cpp" />
-    <ClCompile Include="source\game\Rocket.cpp" />
+    <ClCompile Include="source\engine\core.cpp" />
+    <ClCompile Include="source\engine\core\component_system.cpp" />
+    <ClCompile Include="source\engine\core\entity_manager.cpp" />
+    <ClCompile Include="source\engine\core\roster_pool.cpp" />
+    <ClCompile Include="source\engine\model_manager.cpp" />
+    <ClCompile Include="source\engine\physics.cpp" />
+    <ClCompile Include="source\engine\rendering.cpp" />
+    <ClCompile Include="source\engine\resource.cpp" />
+    <ClCompile Include="source\game\alien.cpp" />
+    <ClCompile Include="source\game\bomb.cpp" />
+    <ClCompile Include="source\game\game.cpp" />
+    <ClCompile Include="source\game\player.cpp" />
+    <ClCompile Include="source\game\rocket.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\engine\core\EntityHandleManager.h" />
-    <ClInclude Include="source\engine\core\Enums.h" />
-    <ClInclude Include="source\engine\core\Handle.h" />
-    <ClInclude Include="source\engine\core\Library.h" />
-    <ClInclude Include="source\engine\core\RosterPool.h" />
-    <ClInclude Include="source\engine\Engine.h" />
-    <ClInclude Include="source\engine\EngineTypes.h" />
-    <ClInclude Include="source\game\Alien.h" />
-    <ClInclude Include="source\game\Bomb.h" />
-    <ClInclude Include="source\game\Game.h" />
-    <ClInclude Include="source\game\Player.h" />
-    <ClInclude Include="source\game\Rocket.h" />
+    <ClInclude Include="source\engine\core\entity_manager.h" />
+    <ClInclude Include="source\engine\core\enums.h" />
+    <ClInclude Include="source\engine\core\handle.h" />
+    <ClInclude Include="source\engine\core\library.h" />
+    <ClInclude Include="source\engine\core\roster_pool.h" />
+    <ClInclude Include="source\engine\engine.h" />
+    <ClInclude Include="source\engine\engine_types.h" />
+    <ClInclude Include="source\game\alien.h" />
+    <ClInclude Include="source\game\bomb.h" />
+    <ClInclude Include="source\game\game.h" />
+    <ClInclude Include="source\game\player.h" />
+    <ClInclude Include="source\game\rocket.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AA96131E-A07B-464A-A210-BB16AF4388E7}</ProjectGuid>
