@@ -44,4 +44,23 @@ namespace Engine
 		}
 		resources->to_be_freed.clear();
 	}
+
+	void UnloadResources()
+	{
+		for (auto &pool : g_context->resources->caches)
+		{
+			const uint16_t count = pool.Size();
+			if (count == 0)
+				continue;
+
+			const uint16_t *const indexes = pool.Indexes();
+			ISprite **const i_sprites = pool.Data<ISprite*>();
+
+			for (unsigned i = 0; i < count; i++)
+			{
+				uint16_t index = indexes[i];
+				i_sprites[index]->destroy();
+			}
+		}
+	}
 }

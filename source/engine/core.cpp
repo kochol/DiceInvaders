@@ -2,7 +2,7 @@
 **
 ** core.cpp
 ** Engine initialization and shutdown, and some utility functions
-** (everething that didn't find a better place :D)
+** (everething that I didn't find a better place for :D)
 **
 ** Author: Ali Salehi
 ** -------------------------------------------------------------------------*/
@@ -65,10 +65,17 @@ namespace Engine
 		_Context *const _context = reinterpret_cast<_Context*>(g_context);
 
 		ExecuteComponentCallbacks(CALLBACK_STAGE_SHUTDOWN);
+		UnloadResources();
 
 		delete _context->rnd_device;
 		delete _context->rnd_engine;
 		delete _context->rnd_dist;
+
+		delete _context->frame_data;
+		delete _context->world;
+
+		delete _context->resources;
+		delete _context->config;
 
 		_context->system->destroy();
 		FreeLibrary(_context->_lib);

@@ -131,4 +131,5 @@ namespace Engine
 	inline const uint16_t* ResolveSpriteIndexes() { return g_context->resources->caches[RESOURCE_TYPE_SPRITE].Indexes(); }
 	inline ISprite** ResolveSpriteData() { return g_context->resources->caches[RESOURCE_TYPE_SPRITE].Data<ISprite*>(); }
 	inline void             DestroySprite(const ResourceHandle& handle) { g_context->resources->to_be_freed.insert(handle); }
+	void             UnloadResources();
 }
