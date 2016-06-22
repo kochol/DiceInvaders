@@ -84,11 +84,20 @@ namespace Engine
 		CleanupComponents();
 		CleanupEntities();
 		CleanupResources();
+
+		const float engine_time = _context->system->getElapsedTime();
+
 		_context->_running = g_context->system->update();
 
+		const float library_time = _context->system->getElapsedTime();
+
 		char debug_text[100];
-		sprintf_s(debug_text, 100, "frame_t: %.5f ms", 1000.0f * Engine::DeltaTime());
-		g_context->system->drawText(0, 0, debug_text);
+		sprintf_s(debug_text, 100, "-frame_t: %.3f ms", 1000.0f * (library_time - time));
+		g_context->system->drawText(0, 20, debug_text);
+		sprintf_s(debug_text, 100, "--engine: %% %.2f", 100.0f * (engine_time - time) / (library_time - time));
+		g_context->system->drawText(0, 40, debug_text);
+		sprintf_s(debug_text, 100, "--library: %% %.2f", 100.0f * (library_time - engine_time) / (library_time - time));
+		g_context->system->drawText(0, 60, debug_text);
 	}
 
 	void InitLayer(const LayerId layer_id, const uint16_t max_items)

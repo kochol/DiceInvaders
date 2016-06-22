@@ -57,6 +57,7 @@ namespace Game
 				if (model_collision->collidedLayers & (1 << Engine::LAYER_ID_PLAYER))
 					DamagePlayer();
 
+
 				Engine::DestroyEntity(component->entity);
 				Engine::DestroyComponent(component->model);
 				Engine::DestroyComponent(component->self);
@@ -82,6 +83,9 @@ namespace Game
 		const float bombDropChance = 1.5f / static_cast<float>(count + 10);
 
 		const Engine::BoundingBox layer_bb = Engine::GetLayerData(data->layerId)->boundingBox;
+
+		if (layer_bb.center.y + layer_bb.halfSize.y > Engine::ScreenHeight() - 32)
+			Game::End();
 
 		const float min_x = layer_bb.center.x - layer_bb.halfSize.x;
 		const float max_x = layer_bb.center.x + layer_bb.halfSize.x;
@@ -122,7 +126,8 @@ namespace Game
 	void SpawnAliens(Engine::ComponentManager::LayerData *const data)
 	{
 		if (data->layerId != Engine::LAYER_ID_ALIEN ||
-			data->components.Size() > 0)
+			data->components.Size() > 0 ||
+			State() != GAME_STATE_IN_GAME)
 			return;
 
 		_AlienManager *const custom_data = reinterpret_cast<_AlienManager*>(data->customData);

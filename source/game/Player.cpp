@@ -26,7 +26,8 @@ namespace Game
 
 	void UpdatePlayerFromInput(Engine::ComponentManager::LayerData *const data)
 	{
-		if (data->layerId != Engine::LAYER_ID_PLAYER)
+		if (data->layerId != Engine::LAYER_ID_PLAYER ||
+			State() != GAME_STATE_IN_GAME)
 			return;
 
 		Engine::BaseComponent *const component = data->components.Resolve<Engine::BaseComponent>(0, COMPONENT_DATA_BASE);
@@ -50,11 +51,6 @@ namespace Game
 			player->lastFired = Engine::Time();
 			SpawnRocket(transform->position.x, transform->position.y - 35);
 		}
-
-
-		char playerHealth[100];
-		sprintf_s(playerHealth, "player health: %d", player->health);
-		Engine::g_context->system->drawText(0, 40, playerHealth);
 	}
 
 	void ShutdownPlayerManager(Engine::ComponentManager::LayerData *const data)
@@ -127,13 +123,8 @@ namespace Game
 
 		if (player->health <= 0)
 		{
-			GameOver();
+			End();
 			//TODO: kill player
 		}
-	}
-
-	void ScorePlayer()
-	{
-		g_currentSession.score++;
 	}
 }

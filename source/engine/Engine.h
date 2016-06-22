@@ -16,6 +16,7 @@ namespace Engine
 	inline World::LayerData* GetLayerData(const LayerId layer_id) { return &g_context->world->layers[layer_id]; }
 
 	// Utility
+	inline void DrawText(int x, int y, const char *const text) { g_context->system->drawText(x, y, text); }
 	float Random();
 	bool ShouldRun();
 	inline const Config& GetConfig() { return *g_context->config; }

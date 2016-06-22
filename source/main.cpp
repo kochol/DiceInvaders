@@ -68,11 +68,12 @@ int APIENTRY WinMain(
 
 	Engine::InitComponents();
 
-	Game::SpawnPlayer();
+	Game::g_currentSession.state = Game::GAME_STATE_PRE_GAME;
 
 	while (Engine::ShouldRun())
 	{
 		Engine::Update();
+		Game::Update();
 	}
 
 	Engine::Shutdown();

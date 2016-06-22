@@ -106,4 +106,25 @@ namespace Game
 
 		return entity;
 	}
+
+	void DestroyRockets()
+	{
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ROCKET);
+		Engine::ComponentManager::LayerData *const layer = &manager->layerData[Engine::LAYER_ID_ROCKET];
+
+		uint16_t count = layer->components.Size();
+
+		const uint16_t *const indexes = layer->components.Indexes();
+		Engine::BaseComponent *const components = layer->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
+
+		for (uint16_t i = 0; i < count; ++i)
+		{
+			const uint16_t index = indexes[i];
+			const Engine::BaseComponent *const component = components + index;
+
+			Engine::DestroyEntity(component->entity);
+			Engine::DestroyComponent(component->model);
+			Engine::DestroyComponent(component->self);
+		}
+	}
 }
