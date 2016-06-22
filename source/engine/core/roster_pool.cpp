@@ -1,7 +1,40 @@
+/* ---------------------------------------------------------------------------
+**
+** roster_pool.cpp
+** Multi-buffer memory pool, based on Insomniac's implementation, allowing
+** very fast free/alloc operations
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #include "roster_pool.h"
+
 #include <cstdlib>
 #include <cassert>
 #include <utility>
+
+/* -- module -----------------------------------------------------------------
+**
+** RosterPool is a multi-buffer fixed-size memory pool implementation, 
+** that allows very fast alloc and free operations. The pool uses the
+** Structure-of-Arrays idea, so each pool entry points to n locations.
+** It is required to call Init before using the pool. No heap memory is
+** allocated outside the Init function.
+** After that use Alloc / Free / Resolve / Data to access the pool functionality.
+** The memory is deallocated in the destructor.
+**
+/* -- implementation ---------------------------------------------------------
+**
+** Internally the pool manages n linear buffers, each of size sizeof(Type_n).
+** A roster array is used as an indirection to access pool memoty, so alloc is 
+** simply the operation of increasing roster partition, and freeing consists of
+** decreasing it and swapping two roster indexes.
+** It should be noted that freeing and allocating makes the pool non-linear for
+** access operations, so if the cost of non-linear memory access is too high on
+** the target platform (not the case with x86), it would be benifical to re-sort
+** the roster at some points.
+**
+** -------------------------------------------------------------------------*/
 
 namespace Engine
 {

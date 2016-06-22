@@ -1,6 +1,14 @@
+/* ---------------------------------------------------------------------------
+**
+** player.h
+** The Player component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #pragma once
 
-#include "../engine/Engine.h"
+#include "../engine/engine.h"
 
 namespace Game
 {

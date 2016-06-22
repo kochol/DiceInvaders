@@ -1,4 +1,13 @@
-#include "Engine.h"
+/* ---------------------------------------------------------------------------
+**
+** resource.cpp
+** Asset management stuff, implemented as a part of "Model" component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "engine.h"
+
 #include <cassert>
 
 namespace Engine

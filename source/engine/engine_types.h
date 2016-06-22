@@ -1,10 +1,18 @@
+/* ---------------------------------------------------------------------------
+**
+** engine_types.h
+** Engine type definitions
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #pragma once
 #include <unordered_set>
 
-#include "core/Library.h"
+#include "core/library.h"
 #include "core/entity_manager.h"
 #include "core/roster_pool.h"
-#include "core/Enums.h"
+#include "core/enums.h"
 
 namespace Engine
 {
@@ -24,8 +32,7 @@ namespace Engine
 	{
 		ComponentType type;
 
-		// these types are so rarely used
-		// use entity id as the key
+		// maps and entity handle to a component handle of this type, in this layer
 		HandleHashMap<EntityHandle, ComponentHandle> component_map;
 
 		struct LayerData
@@ -33,6 +40,8 @@ namespace Engine
 			LayerId layer_id;
 			RosterPool components;
 			std::unordered_set<uint16_t> to_be_freed;
+
+			// custom data that is managed by the manager
 			void *custom_data;
 		};
 		LayerData layer_data[LAYER_ID_MAX];
@@ -51,8 +60,11 @@ namespace Engine
 	
 	struct BaseComponent
 	{
+		// handle to itself
 		ComponentHandle self;
+		// handle to the entity which the component is attached to
 		EntityHandle entity;
+		// cache handle to the model component
 		ComponentHandle model;
 	};
 
@@ -66,6 +78,7 @@ namespace Engine
 		BoundingBox local_aabb;
 	};
 
+	// collision detection results
 	struct alignas(4) Collision
 	{
 		uint16_t collided_layers;
@@ -75,9 +88,7 @@ namespace Engine
 
 	struct World
 	{
-		// uniformly indexed common components.
-		// component id can be used as a direct index on them
-		EntityHandleManager handle_manager;
+		EntityManager handle_manager;
 		HandleHashSet<EntityHandle> to_be_freed_entities;
 
 		struct LayerData
@@ -91,9 +102,9 @@ namespace Engine
 		ComponentManager components[COMPONENT_TYPE_MAX];
 
 		std::vector<std::pair<LayerId, LayerId>> collision_masks;
-		
 	};
 
+	// data specific to a frame, used by components
 	struct FrameData
 	{
 		float dt;
@@ -107,6 +118,8 @@ namespace Engine
 		int screen_height;
 	};
 
+
+	// Engine context
 	struct Context
 	{
 		World *world;

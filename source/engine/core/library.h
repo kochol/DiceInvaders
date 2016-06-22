@@ -1,5 +1,12 @@
+/* ---------------------------------------------------------------------------
+**
+** library.h
+** Interface to the provided DLL library
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #pragma once
-#include <windows.h>
 
 namespace Engine
 {

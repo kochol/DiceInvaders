@@ -1,6 +1,16 @@
-#include "Alien.h"
+/* ---------------------------------------------------------------------------
+**
+** bomb.cpp
+** The Alien component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "alien.h"
+
 #include <algorithm>
 #include <cassert>
+
 #include "Game.h"
 
 namespace Game

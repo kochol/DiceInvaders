@@ -1,3 +1,11 @@
+/* ---------------------------------------------------------------------------
+**
+** enums.h
+** Global engine enums
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #pragma once
 
 namespace Engine
@@ -31,8 +39,6 @@ namespace Engine
 		COMPONENT_TYPE_ALIEN = 3,
 		COMPONENT_TYPE_ROCKET = 4,
 		COMPONENT_TYPE_BOMB = 5,
-
-		COMPONENT_TYPE_UI = 6,
 
 		COMPONENT_TYPE_MAX = COMPONENT_TYPE_BOMB + 1
 	};

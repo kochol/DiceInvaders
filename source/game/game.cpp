@@ -1,5 +1,15 @@
-#include "Game.h"
-#include "Player.h"
+/* ---------------------------------------------------------------------------
+**
+** game.cpp
+** Global game session related functionalities
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include <algorithm>
+
+#include "game.h"
+#include "player.h"
 
 namespace Game
 {
@@ -23,7 +33,7 @@ namespace Game
 		DestroyBombs();
 		DestroyRockets();
 
-		g_currentSession.hi_score = max(g_currentSession.hi_score, g_currentSession.score);
+		g_currentSession.hi_score = std::max(g_currentSession.hi_score, g_currentSession.score);
 		
 		g_currentSession.state = GAME_STATE_POST_GAME;
 	}
@@ -130,7 +140,7 @@ namespace Game
 		sprintf_s(buffer, "HEALTH<1>");
 		Engine::DrawText((Engine::ScreenWidth() + 170 - char_width * strlen(buffer)) / 2, 0, buffer);
 
-		sprintf_s(buffer, "GAME OVER!");
+		sprintf_s(buffer, "GAME OVER !!!");
 		Engine::DrawText((Engine::ScreenWidth() - char_width * strlen(buffer)) / 2, Engine::ScreenHeight() / 2 - 50, buffer);
 
 		sprintf_s(buffer, "PUSH");

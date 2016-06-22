@@ -1,5 +1,13 @@
+/* ---------------------------------------------------------------------------
+**
+** game.h
+** Global game session logic
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
 #pragma once
-#include "../engine/Engine.h"
+#include "../engine/engine.h"
 
 namespace Game
 {

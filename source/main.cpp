@@ -1,10 +1,11 @@
 #include <windows.h>
-#include "engine/Engine.h"
-#include "game/Player.h"
-#include "game/Alien.h"
-#include "game/Bomb.h"
-#include "game/Rocket.h"
-#include "game/Game.h"
+
+#include "engine/engine.h"
+#include "game/player.h"
+#include "game/alien.h"
+#include "game/bomb.h"
+#include "game/rocket.h"
+#include "game/game.h"
 
 int APIENTRY WinMain(
 	HINSTANCE instance,
@@ -12,16 +13,19 @@ int APIENTRY WinMain(
 	LPSTR commandLine,
 	int commandShow)
 {
+	// Initialize the engine and window
 	Engine::Config config;
 	config.screen_width = 510;
 	config.screen_height = 500;
-
 	Engine::Init(config);
+
+	// Initialize layers
 	Engine::InitLayer(Engine::LAYER_ID_PLAYER, 1);
 	Engine::InitLayer(Engine::LAYER_ID_ALIEN, 100);
 	Engine::InitLayer(Engine::LAYER_ID_BOMB, 100);
 	Engine::InitLayer(Engine::LAYER_ID_ROCKET, 100);
 
+	// Register component types
 	Engine::RegisterComponentType(Engine::COMPONENT_TYPE_MODEL,
 	{
 		{ Engine::CALLBACK_STAGE_INIT, Engine::InitModels },
@@ -62,20 +66,30 @@ int APIENTRY WinMain(
 		{ Engine::CALLBACK_STAGE_SHUTDOWN , Game::ShutdownRocketManager }
 	});
 
+	// Define collision masks
 	Engine::AddCollisionMask(Engine::LAYER_ID_PLAYER, Engine::LAYER_ID_ALIEN);
 	Engine::AddCollisionMask(Engine::LAYER_ID_PLAYER, Engine::LAYER_ID_BOMB);
 	Engine::AddCollisionMask(Engine::LAYER_ID_ALIEN, Engine::LAYER_ID_ROCKET);
 
+	// Initilize the previously registered component managers
 	Engine::InitComponents();
 
+	// Eneter the main loop
 	while (Engine::ShouldRun())
 	{
 		Engine::Update();
 		Game::Update();
 	}
 
+
+	// Shutdown the engine and free allocated resources
 	Engine::Shutdown();
 
+	// Actually the majority of the allocated memory 
+	// is going to be freed here (~RosterPool). This free-
+	// form memory allocation / deallocation style is used for
+	// the sake of simplicity, for actual usages, custom 
+	// global memory allocators should be used instead.
 	return 0;
 }
 

@@ -1,4 +1,14 @@
-#include "Engine.h"
+/* ---------------------------------------------------------------------------
+**
+** physics.cpp
+** Collision detection stuff, implemented as a part of "Model" component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "engine.h"
+
+#include <algorithm>
 
 namespace Engine
 {
@@ -38,12 +48,17 @@ namespace Engine
 
 	// Check wheter b is inside a
 	inline bool CheckAabbInside(const BoundingBox& b1, const BoundingBox& b2);
+	
+	// Check wheter a collides with b
 	inline bool CheckAabbCollision(const Vector2& p1, const Vector2& p2, const BoundingBox& b1, const BoundingBox& b2);
 	inline bool CheckAabbCollision(const BoundingBox& b1, const BoundingBox& b2);
 	inline bool CheckAabbCollision(
 		const float x1, const float y1, const float w1, const float h1,
 		const float x2, const float y2, const float w2, const float h2);
 
+
+	// The broad-phase is impleneted by checking each layer's bounding box against other layers
+	// This simple splution was selected because of the good-enough results achieved for the problem.
 	void UpdatePhysicsBroadPhase(ComponentManager::LayerData *const data)
 	{
 		const uint16_t count = data->components.Size();
@@ -68,6 +83,9 @@ namespace Engine
 			collisions);
 	}
 
+	// The narrow-phase checks each objects of a layer againts each object of the 
+	// other layer. It is of O(n2) complexity, sor for heavier scenarios, use of
+	// some sort of spatial partitioning and stricter broad-phase would be necessary.
 	void UpdatePhysicsNarrowPhase(ComponentManager::LayerData *const data)
 	{
 		const uint16_t count = data->components.Size();
@@ -128,6 +146,8 @@ namespace Engine
 		}
 	}
 
+	// Updates aabb of a layer, which is then used in the broad-phase
+	// for early layer-layer rejection
 	static void UpdateLayerBoundingBox(
 		const uint16_t *const indexes,
 		const Transform *const transforms,
@@ -159,10 +179,10 @@ namespace Engine
 			const float x = transform->position.x;
 			const float y = transform->position.y;
 
-			min_x = min(min_x, x);
-			max_x = max(max_x, x);
-			min_y = min(min_y, y);
-			max_y = max(max_y, y);
+			min_x = std::min(min_x, x);
+			max_x = std::max(max_x, x);
+			min_y = std::min(min_y, y);
+			max_y = std::max(max_y, y);
 		}
 
 		max_x += size;
@@ -174,6 +194,7 @@ namespace Engine
 		boundingBox->half_size.y = (max_y - min_y) / 2.f;
 	}
 
+	// Resets the state of the collision output data structures
 	static void ResetCollisions(
 		const uint16_t *const indexes,
 		const uint16_t count,
@@ -190,6 +211,7 @@ namespace Engine
 		}
 	}
 
+	// Detects if an object is out of screen boundaries
 	static void DetectBoundaryCollisions(
 		const BoundingBox& boundingBox,
 		const uint16_t *const indexes,
@@ -230,6 +252,7 @@ namespace Engine
 		}
 	}
 
+	// Detect collision between two layers
 	static void DetectCollisions(
 		const BoundingBox& first_bounding_box,
 		const BoundingBox& second_bounding_box,
@@ -295,6 +318,7 @@ namespace Engine
 		return true;
 	}
 
+	// Check wheter a collides with b
 	inline bool CheckAabbCollision(const Vector2& p1, const Vector2& p2, const BoundingBox& b1, const BoundingBox& b2)
 	{
 		if (abs(p1.x + b1.center.x - p2.x + b2.center.x) > b1.half_size.x + b2.half_size.x) return false;

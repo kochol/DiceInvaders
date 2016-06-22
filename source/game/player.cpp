@@ -1,5 +1,16 @@
-#include "Player.h"
-#include "Game.h"
+/* ---------------------------------------------------------------------------
+**
+** player.cpp
+** The Player component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "player.h"
+
+#include <algorithm>
+
+#include "game.h"
 
 namespace Game
 {
@@ -44,7 +55,7 @@ namespace Game
 
 		const float max_x = Engine::ScreenWidth() - 35.f;
 		const float min_x = 3.f;
-		transform->position.x = max(min_x, min(max_x, transform->position.x));
+		transform->position.x = std::max(min_x, std::min(max_x, transform->position.x));
 
 		if (Engine::Keys().fire && Engine::Time() - player->lastFired > 0.25f)
 		{

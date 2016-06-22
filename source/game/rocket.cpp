@@ -1,5 +1,13 @@
-#include "Rocket.h"
-#include "Game.h"
+/* ---------------------------------------------------------------------------
+**
+** rocket.cpp
+** The Rocket component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "rocket.h"
+#include "game.h"
 
 namespace Game
 {

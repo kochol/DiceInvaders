@@ -1,6 +1,17 @@
-#include "Engine.h"
+/* ---------------------------------------------------------------------------
+**
+** core.cpp
+** Engine initialization and shutdown, and some utility functions
+** (everething that didn't find a better place :D)
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "engine.h"
+
 #include <cassert>
 #include <random>
+#include <windows.h>
 
 namespace Engine
 {

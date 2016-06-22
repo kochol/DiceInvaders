@@ -1,5 +1,13 @@
-#include "Bomb.h"
-#include "Game.h"
+/* ---------------------------------------------------------------------------
+**
+** bomb.cpp
+** The Bomb component
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "bomb.h"
+#include "game.h"
 
 namespace Game
 {

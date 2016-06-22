@@ -1,5 +1,46 @@
-#include "../Engine.h"
-#include <cassert>
+/* ---------------------------------------------------------------------------
+**
+** component_system.cpp
+** Component system, based on Insomniac's Dynamic Component System (DCS)
+**
+** Author: Ali Salehi
+** -------------------------------------------------------------------------*/
+
+#include "../engine.h"
+
+/* -- module -----------------------------------------------------------------
+**
+** The component system is the underlying system for most of the engine 
+** functionalities. Everything from rendering, physics, to the gameplay logic
+** is implemented as a component system.
+** The system is based on the pure composition pattern. Components relate to
+** each other by their entity handle, and the entity is just a handle and has
+** no underlying data. 
+** Components are managed by their corresponding component manager. Objects in
+** the engine are oraganized in "Layer"s, for betetr cash locality, eg. all the
+** components of the aliens are in the same layer. Component managers register 
+** callbacks for some pre-defined events. The Component system then execute them
+** for each layer, for each component.
+** Freeing components is a deferred operation, the actual deletion takes place
+** after the post update stage.
+** Components should be stored using their handle, not their raw pointer. Each
+** component manager is free to lay its data an as many arrays as suitable. The
+** only requirement is to store the BaseComponent in the first array.
+** Component managers should initialize their memory pools and internal states,
+** in the registered initialize callback. If a component is intended to work
+** only in a specific layer, it should skeep all the init calls, except for that
+** layer.
+** Accessing component data should be done using the ResolveComponentSegment...
+** helpers.
+** The order in which callbacks are executed is indicated by the component type
+** enumerator value, executing from 0 to n-1.
+**
+/* -- implementation ---------------------------------------------------------
+**
+** Internally the component system makes heavy use of the roster pool to handle
+** component data.
+**
+** -------------------------------------------------------------------------*/
 
 namespace Engine
 {
