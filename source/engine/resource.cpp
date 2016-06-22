@@ -26,13 +26,13 @@ namespace Engine
 	{
 		Resources *const resources = g_context->resources;
 
-		for (const auto resource : resources->toBeFreed)
+		for (const auto resource : resources->to_be_freed)
 		{
 			ISprite *const sprite = *ResolveSprite(resource);
 			sprite->destroy();
 
 			resources->caches[RESOURCE_TYPE_SPRITE].Free(resource.index);
 		}
-		resources->toBeFreed.clear();
+		resources->to_be_freed.clear();
 	}
 }

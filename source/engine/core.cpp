@@ -104,19 +104,19 @@ namespace Engine
 	{
 		World::LayerData *const layer = GetLayerData(layer_id);
 
-		layer->layerId = layer_id;
-		layer->maxEntities = max_items;
+		layer->layer_id = layer_id;
+		layer->max_entities = max_items;
 	}
 
 	void CleanupEntities()
 	{
 		World *const world = g_context->world;
-		for (const auto entity : world->toBeFreedEntities)
+		for (const auto entity : world->to_be_freed_entities)
 		{
-			world->handleManager.Destroy(entity);
+			world->handle_manager.Destroy(entity);
 		}
 
-		world->toBeFreedEntities.clear();
+		world->to_be_freed_entities.clear();
 	}
 
 	float Random()

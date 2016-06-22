@@ -1,5 +1,5 @@
 #pragma once
-#include "EngineTypes.h"
+#include "engine_types.h"
 
 namespace Engine
 {
@@ -14,6 +14,7 @@ namespace Engine
 	// World
 	void InitLayer(const LayerId layer_id, const uint16_t max_entities);
 	inline World::LayerData* GetLayerData(const LayerId layer_id) { return &g_context->world->layers[layer_id]; }
+	inline void AddCollisionMask(LayerId first, LayerId second) { g_context->world->collision_masks.push_back({ first, second }); }
 
 	// Utility
 	inline void DrawText(int x, int y, const char *const text) { g_context->system->drawText(x, y, text); }
@@ -44,8 +45,8 @@ namespace Engine
 		handle.header.layer = static_cast<uint8_t>(layer);
 		return handle;
 	}
-	inline ComponentHandle LookupComponent(const EntityHandle& handle, const ComponentType type) { return GetComponentManager(type)->componentMap[handle]; }
-	inline RosterPool* ResolveComponentPool(const ComponentType type, const LayerId layer) { return &GetComponentManager(type)->layerData[layer].components; }
+	inline ComponentHandle LookupComponent(const EntityHandle& handle, const ComponentType type) { return GetComponentManager(type)->component_map[handle]; }
+	inline RosterPool* ResolveComponentPool(const ComponentType type, const LayerId layer) { return &GetComponentManager(type)->layer_data[layer].components; }
 
 	template<typename T>
 	T* ResolveComponentSegment(const ComponentHandle& component, const uint8_t segment) { return ResolveComponentPool(static_cast<ComponentType>(component.header.type), static_cast<LayerId>(component.header.layer))->Resolve<T>(component.index, segment); }
@@ -54,9 +55,9 @@ namespace Engine
 
 	// Entity
 	void CleanupEntities();
-	inline EntityHandle CreateEntity(const LayerId layer) { return g_context->world->handleManager.Create(layer); }
-	inline void         DestroyEntity(const EntityHandle& handle) { g_context->world->toBeFreedEntities.insert(handle); }
-	inline bool         ValidEntity(const EntityHandle& handle) { return g_context->world->handleManager.Valid(handle); }
+	inline EntityHandle CreateEntity(const LayerId layer) { return g_context->world->handle_manager.Create(layer); }
+	inline void         DestroyEntity(const EntityHandle& handle) { g_context->world->to_be_freed_entities.insert(handle); }
+	inline bool         ValidEntity(const EntityHandle& handle) { return g_context->world->handle_manager.Valid(handle); }
 	
 
 	// Model
@@ -71,5 +72,5 @@ namespace Engine
 	inline ISprite** ResolveSprite(const ResourceHandle& handle) { return g_context->resources->caches[RESOURCE_TYPE_SPRITE].Resolve<ISprite*>(handle.index); }
 	inline const uint16_t* ResolveSpriteIndexes() { return g_context->resources->caches[RESOURCE_TYPE_SPRITE].Indexes(); }
 	inline ISprite** ResolveSpriteData() { return g_context->resources->caches[RESOURCE_TYPE_SPRITE].Data<ISprite*>(); }
-	inline void             DestroySprite(const ResourceHandle& handle) { g_context->resources->toBeFreed.insert(handle); }
+	inline void             DestroySprite(const ResourceHandle& handle) { g_context->resources->to_be_freed.insert(handle); }
 }

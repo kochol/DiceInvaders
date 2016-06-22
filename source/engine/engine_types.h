@@ -2,8 +2,8 @@
 #include <unordered_set>
 
 #include "core/Library.h"
-#include "core/EntityHandleManager.h"
-#include "core/RosterPool.h"
+#include "core/entity_manager.h"
+#include "core/roster_pool.h"
 #include "core/Enums.h"
 
 namespace Engine
@@ -17,7 +17,7 @@ namespace Engine
 	struct BoundingBox
 	{
 		Vector2 center;
-		Vector2 halfSize;
+		Vector2 half_size;
 	};
 
 	struct ComponentManager
@@ -26,16 +26,16 @@ namespace Engine
 
 		// these types are so rarely used
 		// use entity id as the key
-		HandleHashMap<EntityHandle, ComponentHandle> componentMap;
+		HandleHashMap<EntityHandle, ComponentHandle> component_map;
 
 		struct LayerData
 		{
-			LayerId layerId;
+			LayerId layer_id;
 			RosterPool components;
-			std::unordered_set<uint16_t> toBeFreed;
-			void *customData;
+			std::unordered_set<uint16_t> to_be_freed;
+			void *custom_data;
 		};
-		LayerData layerData[LAYER_ID_MAX];
+		LayerData layer_data[LAYER_ID_MAX];
 
 		typedef void(*Callback)(LayerData *const);
 		Callback callbacks[CALLBACK_STAGE_MAX];
@@ -45,7 +45,7 @@ namespace Engine
 	{
 		// store all loaded resources
 		RosterPool caches[RESOURCE_TYPE_MAX];
-		HandleHashSet<ResourceHandle> toBeFreed;
+		HandleHashSet<ResourceHandle> to_be_freed;
 	};
 
 	
@@ -63,12 +63,12 @@ namespace Engine
 
 	struct Collider
 	{
-		BoundingBox localBb;
+		BoundingBox local_aabb;
 	};
 
 	struct alignas(4) Collision
 	{
-		uint16_t collidedLayers;
+		uint16_t collided_layers;
 		uint8_t boundary;
 		uint8_t padding;
 	};
@@ -77,20 +77,20 @@ namespace Engine
 	{
 		// uniformly indexed common components.
 		// component id can be used as a direct index on them
-		EntityHandleManager handleManager;
-		HandleHashSet<EntityHandle> toBeFreedEntities;
+		EntityHandleManager handle_manager;
+		HandleHashSet<EntityHandle> to_be_freed_entities;
 
 		struct LayerData
 		{
-			LayerId layerId;
-			BoundingBox boundingBox;
-			uint16_t maxEntities;
+			LayerId layer_id;
+			BoundingBox aabb;
+			uint16_t max_entities;
 		};
 
 		LayerData layers[LAYER_ID_MAX];
 		ComponentManager components[COMPONENT_TYPE_MAX];
 
-		std::vector<std::pair<LayerId, LayerId>> collisionMasks;
+		std::vector<std::pair<LayerId, LayerId>> collision_masks;
 		
 	};
 

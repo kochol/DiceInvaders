@@ -1,4 +1,4 @@
-#include "EntityHandleManager.h"
+#include "entity_manager.h"
 #include <cassert>
 
 namespace Engine

@@ -15,11 +15,11 @@ namespace Game
 
 	void InitAlienManager(Engine::ComponentManager::LayerData *const data)
 	{
-		if (data->layerId != Engine::LAYER_ID_ALIEN)
+		if (data->layer_id != Engine::LAYER_ID_ALIEN)
 			return;
-		const Engine::World::LayerData *const world_layer_data = Engine::GetLayerData(data->layerId);
+		const Engine::World::LayerData *const world_layer_data = Engine::GetLayerData(data->layer_id);
 
-		data->components.Init(world_layer_data->maxEntities, { sizeof(Engine::BaseComponent), sizeof(Alien) });
+		data->components.Init(world_layer_data->max_entities, { sizeof(Engine::BaseComponent), sizeof(Alien) });
 
 		_AlienManager *const custom_data = new _AlienManager();
 
@@ -29,7 +29,7 @@ namespace Game
 		custom_data->moveDirection = 1;
 		custom_data->shouldChangeDirection = false;
 
-		data->customData = custom_data;
+		data->custom_data = custom_data;
 	}
 
 	void HandleAlienCollisions(Engine::ComponentManager::LayerData *const data)
@@ -42,7 +42,7 @@ namespace Game
 		const Engine::BaseComponent *const components = data->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
 
 		Engine::Collision *const model_collisions = Engine::ResolveComponentSegmentData<Engine::Collision>(
-			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_COLLISION);
+			Engine::COMPONENT_TYPE_MODEL, data->layer_id, Engine::MODEL_DATA_COLLISION);
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
@@ -51,10 +51,10 @@ namespace Game
 
 			const Engine::Collision *const model_collision = model_collisions + component->model.index;
 
-			if (model_collision->collidedLayers ||
+			if (model_collision->collided_layers ||
 				model_collision->boundary)
 			{
-				if (model_collision->collidedLayers & (1 << Engine::LAYER_ID_PLAYER))
+				if (model_collision->collided_layers & (1 << Engine::LAYER_ID_PLAYER))
 					DamagePlayer();
 
 
@@ -71,7 +71,7 @@ namespace Game
 		if (count == 0)
 			return;
 
-		_AlienManager *const custom_data = reinterpret_cast<_AlienManager*>(data->customData);
+		_AlienManager *const custom_data = reinterpret_cast<_AlienManager*>(data->custom_data);
 
 		const float delay = 0.1f + (data->components.Size() / 50.f);
 
@@ -82,13 +82,13 @@ namespace Game
 
 		const float bombDropChance = 1.5f / static_cast<float>(count + 10);
 
-		const Engine::BoundingBox layer_bb = Engine::GetLayerData(data->layerId)->boundingBox;
+		const Engine::BoundingBox layer_bb = Engine::GetLayerData(data->layer_id)->aabb;
 
-		if (layer_bb.center.y + layer_bb.halfSize.y > Engine::ScreenHeight() - 32)
+		if (layer_bb.center.y + layer_bb.half_size.y > Engine::ScreenHeight() - 32)
 			Game::End();
 
-		const float min_x = layer_bb.center.x - layer_bb.halfSize.x;
-		const float max_x = layer_bb.center.x + layer_bb.halfSize.x;
+		const float min_x = layer_bb.center.x - layer_bb.half_size.x;
+		const float max_x = layer_bb.center.x + layer_bb.half_size.x;
 		custom_data->shouldChangeDirection =
 			(custom_data->moveDirection < 0 && min_x < 16.f) ||
 			(custom_data->moveDirection > 0 && max_x > Engine::ScreenWidth() - 16.f);
@@ -104,7 +104,7 @@ namespace Game
 		Alien *const aliens = data->components.Data<Alien>(COMPONENT_DATA_CUSTOM);
 
 		Engine::Transform *const transforms = Engine::ResolveComponentSegmentData<Engine::Transform>(
-			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_TRANSFORM);
+			Engine::COMPONENT_TYPE_MODEL, data->layer_id, Engine::MODEL_DATA_TRANSFORM);
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
@@ -125,12 +125,12 @@ namespace Game
 
 	void SpawnAliens(Engine::ComponentManager::LayerData *const data)
 	{
-		if (data->layerId != Engine::LAYER_ID_ALIEN ||
+		if (data->layer_id != Engine::LAYER_ID_ALIEN ||
 			data->components.Size() > 0 ||
 			State() != GAME_STATE_IN_GAME)
 			return;
 
-		_AlienManager *const custom_data = reinterpret_cast<_AlienManager*>(data->customData);
+		_AlienManager *const custom_data = reinterpret_cast<_AlienManager*>(data->custom_data);
 		custom_data->moveDirection = 1;
 		custom_data->shouldChangeDirection = false;
 		custom_data->lastMoved = Engine::FrameData().time;
@@ -138,25 +138,25 @@ namespace Game
 		Alien *const aliens = data->components.Data<Alien>(COMPONENT_DATA_CUSTOM);
 
 		Engine::Transform *const transforms = Engine::ResolveComponentSegmentData<Engine::Transform>(
-			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_TRANSFORM);
+			Engine::COMPONENT_TYPE_MODEL, data->layer_id, Engine::MODEL_DATA_TRANSFORM);
 		Engine::Collider *const colliders = Engine::ResolveComponentSegmentData<Engine::Collider>(
-			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_COLLIDER);
+			Engine::COMPONENT_TYPE_MODEL, data->layer_id, Engine::MODEL_DATA_COLLIDER);
 		Engine::ResourceHandle *const sprites = Engine::ResolveComponentSegmentData<Engine::ResourceHandle>(
-			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_SPRITE);
+			Engine::COMPONENT_TYPE_MODEL, data->layer_id, Engine::MODEL_DATA_SPRITE);
 
 		for (int16_t x = 0; x < 11; x++)
 		{
 			for (int16_t y = 0; y < 5; y++)
 			{
-				const Engine::EntityHandle entity = Engine::CreateEntity(data->layerId);
+				const Engine::EntityHandle entity = Engine::CreateEntity(data->layer_id);
 				const Engine::ComponentHandle model = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_MODEL);
 				const Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_ALIEN);
 
 				aliens[component.index].lastDroped = 0.f;
 
 				transforms[model.index].position = { x * 35.f, y * 35.f + 100.f };
-				colliders[model.index].localBb.center = { 16.f, 16.f };
-				colliders[model.index].localBb.halfSize = { 15.f, 11.f };
+				colliders[model.index].local_aabb.center = { 16.f, 16.f };
+				colliders[model.index].local_aabb.half_size = { 15.f, 11.f };
 				
 				const Engine::ResourceHandle sprite = custom_data->sprite[y < 2];
 				sprites[model.index] = sprite;
@@ -166,16 +166,16 @@ namespace Game
 
 	void ShutdownAlienManager(Engine::ComponentManager::LayerData *const data)
 	{
-		if (data->layerId != Engine::LAYER_ID_ALIEN)
+		if (data->layer_id != Engine::LAYER_ID_ALIEN)
 			return;
 
-		delete data->customData;
+		delete data->custom_data;
 	}
 
 	void DestroyAliens()
 	{
 		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_ALIEN);
-		Engine::ComponentManager::LayerData *const layer = &manager->layerData[Engine::LAYER_ID_ALIEN];
+		Engine::ComponentManager::LayerData *const layer = &manager->layer_data[Engine::LAYER_ID_ALIEN];
 
 		uint16_t count = layer->components.Size();
 

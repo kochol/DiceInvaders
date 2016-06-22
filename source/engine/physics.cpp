@@ -53,7 +53,7 @@ namespace Engine
 		const uint16_t *const indexes = data->components.Indexes();
 		const Transform *const transforms = data->components.Data<Transform>(MODEL_DATA_TRANSFORM);
 
-		BoundingBox *const bounding_box = &GetLayerData(data->layerId)->boundingBox;
+		BoundingBox *const bounding_box = &GetLayerData(data->layer_id)->aabb;
 
 		UpdateLayerBoundingBox(
 			indexes,
@@ -79,7 +79,7 @@ namespace Engine
 		Collision *const collisions = data->components.Data<Collision>(MODEL_DATA_COLLISION);
 		const Collider *const colliders = data->components.Data<Collider>(MODEL_DATA_COLLIDER);
 
-		const BoundingBox *const bounding_box = &GetLayerData(data->layerId)->boundingBox;
+		const BoundingBox *const bounding_box = &GetLayerData(data->layer_id)->aabb;
 
 		DetectBoundaryCollisions(
 			*bounding_box,
@@ -88,18 +88,18 @@ namespace Engine
 			count,
 			collisions);
 
-		for (const auto mask : g_context->world->collisionMasks)
+		for (const auto mask : g_context->world->collision_masks)
 		{
-			if (mask.first != data->layerId)
+			if (mask.first != data->layer_id)
 				continue;
 
-			const ComponentManager::LayerData *const other_data = &GetComponentManager(COMPONENT_TYPE_MODEL)->layerData[mask.second];
+			const ComponentManager::LayerData *const other_data = &GetComponentManager(COMPONENT_TYPE_MODEL)->layer_data[mask.second];
 
 			const uint16_t other_count = other_data->components.Size();
 			if (other_count == 0)
 				continue;
 
-			const BoundingBox *const other_bounding_box = &GetLayerData(other_data->layerId)->boundingBox;
+			const BoundingBox *const other_bounding_box = &GetLayerData(other_data->layer_id)->aabb;
 
 			const bool broadCollision = CheckAabbCollision(*bounding_box, *other_bounding_box);
 			if (broadCollision == false)
@@ -113,8 +113,8 @@ namespace Engine
 			DetectCollisions(
 				*bounding_box,
 				*other_bounding_box,
-				data->layerId,
-				other_data->layerId,
+				data->layer_id,
+				other_data->layer_id,
 				indexes,
 				other_indexes,
 				transforms,
@@ -137,7 +137,7 @@ namespace Engine
 		if (count == 0)
 		{
 			boundingBox->center = { 0.f, 0.f };
-			boundingBox->halfSize = { 0.f, 0.f };
+			boundingBox->half_size = { 0.f, 0.f };
 
 			return;
 		}
@@ -170,8 +170,8 @@ namespace Engine
 
 		boundingBox->center.x = (min_x + max_x) / 2.f;
 		boundingBox->center.y = (min_y + max_y) / 2.f;
-		boundingBox->halfSize.x = (max_x - min_x) / 2.f;
-		boundingBox->halfSize.y = (max_y - min_y) / 2.f;
+		boundingBox->half_size.x = (max_x - min_x) / 2.f;
+		boundingBox->half_size.y = (max_y - min_y) / 2.f;
 	}
 
 	static void ResetCollisions(
@@ -184,7 +184,7 @@ namespace Engine
 			const uint16_t index = indexes[i];
 			Collision *const collision = collisions + index;
 
-			collision->collidedLayers = 0;
+			collision->collided_layers = 0;
 			collision->boundary = 0;
 
 		}
@@ -202,7 +202,7 @@ namespace Engine
 
 		BoundingBox screenAabb;
 		screenAabb.center = { h_screen_width, h_screen_height };
-		screenAabb.halfSize = { h_screen_width, h_screen_height };
+		screenAabb.half_size = { h_screen_width, h_screen_height };
 
 		bool broad_inside = CheckAabbInside(
 			screenAabb,
@@ -221,7 +221,7 @@ namespace Engine
 			BoundingBox global_aabb;
 			global_aabb.center.x = transform->position.x + h_size;
 			global_aabb.center.y = transform->position.y + h_size;
-			global_aabb.halfSize = { h_size, h_size };
+			global_aabb.half_size = { h_size, h_size };
 
 			collision->boundary = !CheckAabbCollision(
 				screenAabb,
@@ -260,9 +260,9 @@ namespace Engine
 			Collision *const first_collision = first_collisions + first_index;
 
 			BoundingBox first_global_aabb;
-			first_global_aabb.center.x = first_transform->position.x + first_collider->localBb.center.x;
-			first_global_aabb.center.y = first_transform->position.y + first_collider->localBb.center.y;
-			first_global_aabb.halfSize = first_collider->localBb.halfSize;
+			first_global_aabb.center.x = first_transform->position.x + first_collider->local_aabb.center.x;
+			first_global_aabb.center.y = first_transform->position.y + first_collider->local_aabb.center.y;
+			first_global_aabb.half_size = first_collider->local_aabb.half_size;
 
 			for (uint16_t j = 0; j < second_count; ++j)
 			{
@@ -272,16 +272,16 @@ namespace Engine
 				Collision *const second_collision = second_collisions + second_index;
 
 				BoundingBox second_global_aabb;
-				second_global_aabb.center.x = second_transform->position.x + second_collider->localBb.center.x;
-				second_global_aabb.center.y = second_transform->position.y + second_collider->localBb.center.y;
-				second_global_aabb.halfSize = second_collider->localBb.halfSize;
+				second_global_aabb.center.x = second_transform->position.x + second_collider->local_aabb.center.x;
+				second_global_aabb.center.y = second_transform->position.y + second_collider->local_aabb.center.y;
+				second_global_aabb.half_size = second_collider->local_aabb.half_size;
 
 				const bool collided = CheckAabbCollision(first_global_aabb, second_global_aabb);
 
 				if (collided)
 				{
-					first_collision->collidedLayers |= 1 << second_layer_id;
-					second_collision->collidedLayers |= 1 << first_layer_id;
+					first_collision->collided_layers |= 1 << second_layer_id;
+					second_collision->collided_layers |= 1 << first_layer_id;
 				}
 			}
 		}
@@ -290,22 +290,22 @@ namespace Engine
 	// Check wheter b is inside a
 	inline bool CheckAabbInside(const BoundingBox& b1, const BoundingBox& b2)
 	{
-		if (abs(b1.center.x - b2.center.x) > b1.halfSize.x - b2.halfSize.x) return false;
-		if (abs(b1.center.y - b2.center.y) > b1.halfSize.y - b2.halfSize.y) return false;
+		if (abs(b1.center.x - b2.center.x) > b1.half_size.x - b2.half_size.x) return false;
+		if (abs(b1.center.y - b2.center.y) > b1.half_size.y - b2.half_size.y) return false;
 		return true;
 	}
 
 	inline bool CheckAabbCollision(const Vector2& p1, const Vector2& p2, const BoundingBox& b1, const BoundingBox& b2)
 	{
-		if (abs(p1.x + b1.center.x - p2.x + b2.center.x) > b1.halfSize.x + b2.halfSize.x) return false;
-		if (abs(p1.y + b1.center.y - p2.y + b2.center.y) > b1.halfSize.y + b2.halfSize.y) return false;
+		if (abs(p1.x + b1.center.x - p2.x + b2.center.x) > b1.half_size.x + b2.half_size.x) return false;
+		if (abs(p1.y + b1.center.y - p2.y + b2.center.y) > b1.half_size.y + b2.half_size.y) return false;
 		return true;
 	}
 
 	inline bool CheckAabbCollision(const BoundingBox& b1, const BoundingBox& b2)
 	{
-		if (abs(b1.center.x - b2.center.x) > b1.halfSize.x + b2.halfSize.x) return false;
-		if (abs(b1.center.y - b2.center.y) > b1.halfSize.y + b2.halfSize.y) return false;
+		if (abs(b1.center.x - b2.center.x) > b1.half_size.x + b2.half_size.x) return false;
+		if (abs(b1.center.y - b2.center.y) > b1.half_size.y + b2.half_size.y) return false;
 		return true;
 	}
 

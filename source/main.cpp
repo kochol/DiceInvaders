@@ -62,13 +62,11 @@ int APIENTRY WinMain(
 		{ Engine::CALLBACK_STAGE_SHUTDOWN , Game::ShutdownRocketManager }
 	});
 
-	Engine::g_context->world->collisionMasks.push_back({ Engine::LAYER_ID_PLAYER, Engine::LAYER_ID_ALIEN });
-	Engine::g_context->world->collisionMasks.push_back({ Engine::LAYER_ID_PLAYER, Engine::LAYER_ID_BOMB });
-	Engine::g_context->world->collisionMasks.push_back({ Engine::LAYER_ID_ALIEN, Engine::LAYER_ID_ROCKET });
+	Engine::AddCollisionMask(Engine::LAYER_ID_PLAYER, Engine::LAYER_ID_ALIEN);
+	Engine::AddCollisionMask(Engine::LAYER_ID_PLAYER, Engine::LAYER_ID_BOMB);
+	Engine::AddCollisionMask(Engine::LAYER_ID_ALIEN, Engine::LAYER_ID_ROCKET);
 
 	Engine::InitComponents();
-
-	Game::g_currentSession.state = Game::GAME_STATE_PRE_GAME;
 
 	while (Engine::ShouldRun())
 	{

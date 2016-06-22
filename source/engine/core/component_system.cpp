@@ -13,7 +13,7 @@ namespace Engine
 			if (callback == nullptr)
 				continue;
 
-			for (auto &layer : manager->layerData)
+			for (auto &layer : manager->layer_data)
 			{
 				callback(&layer);
 			}
@@ -31,18 +31,18 @@ namespace Engine
 		{
 			ComponentManager *const manager = &g_context->world->components[i];
 
-			for (auto &layer : manager->layerData)
+			for (auto &layer : manager->layer_data)
 			{
-				if (layer.toBeFreed.empty())
+				if (layer.to_be_freed.empty())
 					continue;
 
-				for (auto component_index : layer.toBeFreed)
+				for (auto component_index : layer.to_be_freed)
 				{
 					const BaseComponent *const component_data = layer.components.Resolve<BaseComponent>(component_index, 0);
-					manager->componentMap.erase(component_data->entity);
+					manager->component_map.erase(component_data->entity);
 					layer.components.Free(component_index);
 				}
-				layer.toBeFreed.clear();
+				layer.to_be_freed.clear();
 			}
 		}
 	}
@@ -54,7 +54,7 @@ namespace Engine
 		manager->type = type;
 
 		for (unsigned i = 0; i < COMPONENT_TYPE_MAX; i++)
-			manager->layerData[i].layerId = static_cast<LayerId>(i);
+			manager->layer_data[i].layer_id = static_cast<LayerId>(i);
 
 		for (auto& callback : manager->callbacks)
 			callback = nullptr;
@@ -66,22 +66,22 @@ namespace Engine
 	ComponentHandle CreateComponent(const EntityHandle& entity, const ComponentType type)
 	{
 		ComponentManager *const manager = GetComponentManager(type);
-		ComponentManager::LayerData *const layer = &manager->layerData[entity.header.layer];
+		ComponentManager::LayerData *const layer = &manager->layer_data[entity.header.layer];
 
 		ComponentHandle component;
 		component.index = layer->components.Alloc();
 		component.header.layer = entity.header.layer;
 		component.header.type = static_cast<uint8_t>(type);
 
-		manager->componentMap[entity] = component;
+		manager->component_map[entity] = component;
 
 		BaseComponent *const componentData = layer->components.Resolve<BaseComponent>(component.index);
 		componentData->self = component;
 		componentData->entity = entity;
 
 		const ComponentManager *const model_manager = GetComponentManager(COMPONENT_TYPE_MODEL);
-		const auto model = model_manager->componentMap.find(entity);
-		if (model != model_manager->componentMap.end())
+		const auto model = model_manager->component_map.find(entity);
+		if (model != model_manager->component_map.end())
 			componentData->model = model->second;
 
 		return component;
@@ -90,9 +90,9 @@ namespace Engine
 	void DestroyComponent(const ComponentHandle& component)
 	{
 		ComponentManager *const manager = GetComponentManager(static_cast<ComponentType>(component.header.type));
-		ComponentManager::LayerData *const layer = &manager->layerData[component.header.layer];
+		ComponentManager::LayerData *const layer = &manager->layer_data[component.header.layer];
 
-		layer->toBeFreed.insert(component.index);
+		layer->to_be_freed.insert(component.index);
 	}
 
 }
