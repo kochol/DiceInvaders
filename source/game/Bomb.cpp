@@ -8,91 +8,126 @@ namespace Game
 		Engine::ResourceHandle sprite;
 	};
 
-	void InitBombManager(Engine::ComponentManager *const manager)
+	void InitBombManager(Engine::ComponentManager::LayerData *const data)
 	{
-		manager->components.Init(100, { sizeof(Bomb) });
+		if (data->layerId != Engine::LAYER_ID_BOMB)
+			return;
 
-		_BombManager *const data = new _BombManager;
+		const Engine::World::LayerData *const world_layer_data = Engine::GetLayerData(data->layerId);
 
-		data->sprite = Engine::LoadSprite("bomb.bmp");
+		data->components.Init(world_layer_data->maxEntities, { sizeof(Engine::BaseComponent) });
 
-		manager->customData = data;
+		_BombManager *const custom_data = new _BombManager;
+
+		custom_data->sprite = Engine::LoadSprite("bomb.bmp");
+
+		data->customData = custom_data;
 	}
 
-	void HandleBombCollisions(Engine::ComponentManager* const manager)
+	void HandleBombCollisions(Engine::ComponentManager::LayerData *const data)
 	{
-		uint16_t count = manager->components.Size();
+		uint16_t count = data->components.Size();
+		if (count == 0)
+			return;
 
-		const Engine::LayerId layer = Engine::LAYER_ID_BOMB;
-		const uint16_t *const indexes = Engine::ResolveModelIndexes(layer);
-		Engine::BaseComponent *const model_components = Engine::ResolveModelComponentData(layer);
-		Engine::Collision *const collisions = Engine::ResolveModelCollisionData(layer);;
+		const uint16_t *const indexes = data->components.Indexes();
+		const Engine::BaseComponent *const components = data->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
+
+		Engine::Collision *const model_collisions = Engine::ResolveComponentSegmentData<Engine::Collision>(
+			Engine::COMPONENT_TYPE_MODEL,
+			data->layerId,
+			Engine::MODEL_DATA_COLLISION);
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			const uint16_t index = indexes[i];
+			const Engine::BaseComponent* component = components + index;
 
-			if (collisions[index].collidedLayers ||
-				collisions[index].boundary)
+			const Engine::Collision *const model_collision = model_collisions + component->model.index;
+
+			if (model_collision->collidedLayers ||
+				model_collision->boundary)
 			{
-				if (collisions[index].collidedLayers & (1 << Engine::LAYER_ID_PLAYER))
+				if (model_collision->collidedLayers & (1 << Engine::LAYER_ID_PLAYER))
 					DamagePlayer();
 
-				const Engine::EntityHandle entity = model_components[index].entity;
-				const Engine::ComponentHandle model = model_components[index].model;
-				const Engine::ComponentHandle component = manager->componentMap[entity];
-
-				Engine::DestroyModel(model);
-				Engine::DestroyEntity(entity);
-				manager->components.Free(component.index);
-				manager->componentMap.erase(entity);
-				--i;
-				--count;
+				Engine::DestroyEntity(component->entity);
+				Engine::DestroyComponent(component->model);
+				Engine::DestroyComponent(component->self);
 			}
 		}
 	}
 
-	void UpdateBombs(Engine::ComponentManager* const manager)
+	void UpdateBombs(Engine::ComponentManager::LayerData *const data)
 	{
-		const uint16_t count = manager->components.Size();
+		const uint16_t count = data->components.Size();
+		if (count == 0)
+			return;
 
-		const uint16_t *const indexes = manager->components.Indexes();
-		Bomb *const bombs = manager->components.Data<Bomb>();
+		const uint16_t *const indexes = data->components.Indexes();
+		Engine::BaseComponent *const components = data->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
 
-		Engine::Transform *const transforms = Engine::ResolveModelTransformData(Engine::LAYER_ID_BOMB);
+		Engine::Transform *const transforms = Engine::ResolveComponentSegmentData<Engine::Transform>(
+			Engine::COMPONENT_TYPE_MODEL, data->layerId, Engine::MODEL_DATA_TRANSFORM);
 
 		const float move = Engine::DeltaTime() * 200.f;
 
 		for (uint16_t i = 0; i < count; ++i)
 		{
 			const uint16_t index = indexes[i];
-			const uint16_t modelIndex = bombs[index].model.index;
+			const uint16_t model_index = components[index].model.index;
 
-			transforms[modelIndex].position.y += move;
+			transforms[model_index].position.y += move;
 		}
 	}
 
-	void ShutdownBombManager(Engine::ComponentManager* const manager)
+	void ShutdownBombManager(Engine::ComponentManager::LayerData *const data)
 	{
-		delete manager->customData;
+		if (data->layerId != Engine::LAYER_ID_BOMB)
+			return;
+
+		delete data->customData;
 	}
 
 	Engine::EntityHandle SpawnBomb(float x, float y)
 	{
 		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_BOMB);
+		Engine::ComponentManager::LayerData *const layer = &manager->layerData[Engine::LAYER_ID_BOMB];
+
 		const Engine::EntityHandle entity = Engine::CreateEntity(Engine::LAYER_ID_BOMB);
+		const Engine::ComponentHandle model = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_MODEL);
+		const Engine::ComponentHandle component = Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_BOMB);
 
-		Engine::ResourceHandle sprite = reinterpret_cast<_BombManager*>(manager->customData)->sprite;
-		const Engine::ComponentHandle model = Engine::CreateModel(entity, sprite);
+		Engine::ResolveComponentSegment<Engine::Transform>(model, Engine::MODEL_DATA_TRANSFORM)->position = { x, y };
 
-		Engine::CreateComponent(entity, Engine::COMPONENT_TYPE_BOMB, model);
+		Engine::ResourceHandle sprite = reinterpret_cast<_BombManager*>(layer->customData)->sprite;
+		*Engine::ResolveComponentSegment<Engine::ResourceHandle>(model, Engine::MODEL_DATA_SPRITE) = sprite;
 
-		Engine::ResolveModelTransform(model)->position = { x, y };
-
-		Engine::Collider *const collider = Engine::ResolveModelCollider(model);
+		Engine::Collider *const collider = Engine::ResolveComponentSegment<Engine::Collider>(model, Engine::MODEL_DATA_COLLIDER);
 		collider->localBb.center = { 16.f, 16.f };
 		collider->localBb.halfSize = { 3.f, 8.f };
 
 		return entity;
+	}
+
+	void DestroyBombs()
+	{
+		Engine::ComponentManager *const manager = Engine::GetComponentManager(Engine::COMPONENT_TYPE_BOMB);
+		Engine::ComponentManager::LayerData *const layer = &manager->layerData[Engine::LAYER_ID_BOMB];
+
+		uint16_t count = layer->components.Size();
+
+		const uint16_t *const indexes = layer->components.Indexes();
+		Engine::BaseComponent *const components = layer->components.Data<Engine::BaseComponent>(COMPONENT_DATA_BASE);
+
+		for (uint16_t i = 0; i < count; ++i)
+		{
+			const uint16_t index = indexes[i];
+			const Engine::BaseComponent *const component = components + index;
+
+			Engine::DestroyEntity(component->entity);
+			Engine::DestroyComponent(component->model);
+			Engine::DestroyComponent(component->self);
+		}
 	}
 }

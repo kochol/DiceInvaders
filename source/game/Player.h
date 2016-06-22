@@ -4,13 +4,13 @@
 
 namespace Game
 {
-	struct Player : Engine::BaseComponent
+	struct Player
 	{
 		float lastFired;
 		uint8_t health;
 	};
 
-	void InitPlayerManager(Engine::ComponentManager *const manager);
-	void UpdatePlayerFromInput(Engine::ComponentManager* const manager);
-	void ShutdownPlayerManager(Engine::ComponentManager* const manager);
+	void InitPlayerManager(Engine::ComponentManager::LayerData *const data);
+	void UpdatePlayerFromInput(Engine::ComponentManager::LayerData *const data);
+	void ShutdownPlayerManager(Engine::ComponentManager::LayerData *const data);
 }

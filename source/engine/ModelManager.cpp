@@ -3,7 +3,14 @@
 
 namespace Engine
 {
-	ComponentHandle CreateModel(const EntityHandle& handle, const ResourceHandle& sprite)
+	void InitModels(ComponentManager::LayerData *const data)
+	{
+		const World::LayerData *const world_layer_data = GetLayerData(data->layerId);
+		data->components.Init(world_layer_data->maxEntities,
+		{ sizeof(BaseComponent), sizeof(Transform), sizeof(ResourceHandle), sizeof(Collider), sizeof(Collision) });
+	}
+
+	/*ComponentHandle CreateModel(const EntityHandle& handle, const ResourceHandle& sprite)
 	{
 		World *const world = g_context->world;
 
@@ -43,35 +50,7 @@ namespace Engine
 		Layer *const layer = ResolveLayer(handle);
 
 		layer->models.Free(handle.index);
-	}
+	}*/
 
-	void Render()
-	{
-		const World *const world = g_context->world;
-
-		ISprite **const iSprites = ResolveSpriteData();
-		const uint16_t *const iSpritesIndexes = ResolveSpriteIndexes();
-
-		for (const auto layer : world->layers)
-		{
-			if (layer == nullptr)
-				continue;
-
-			const uint16_t count = ResolveModelCount(*layer);
-
-			const uint16_t *const indexes = ResolveModelIndexes(*layer);
-			const Transform *const transforms = ResolveModelTransformData(*layer);
-			const ResourceHandle *const sprites = ResolveModelSpriteData(*layer);
-
-			for (uint16_t i = 0; i < count; ++i)
-			{
-				const uint16_t index = indexes[i];
-				const uint16_t iSpriteIndex = iSpritesIndexes[sprites[index].index];
-				ISprite *const sprite = iSprites[iSpriteIndex];
-				sprite->draw(
-					static_cast<int>(transforms[index].position.x),
-					static_cast<int>(transforms[index].position.y));
-			}
-		}
-	}
+	
 }

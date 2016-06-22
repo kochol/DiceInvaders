@@ -22,6 +22,14 @@ int APIENTRY WinMain(
 	Engine::InitLayer(Engine::LAYER_ID_BOMB, 100);
 	Engine::InitLayer(Engine::LAYER_ID_ROCKET, 100);
 
+	Engine::RegisterComponentType(Engine::COMPONENT_TYPE_MODEL,
+	{
+		{ Engine::CALLBACK_STAGE_INIT, Engine::InitModels },
+		{ Engine::CALLBACK_STAGE_PHYSICS_BROAD, Engine::UpdatePhysicsBroadPhase },
+		{ Engine::CALLBACK_STAGE_PHYSICS_NARROW, Engine::UpdatePhysicsNarrowPhase },
+		{ Engine::CALLBACK_STAGE_RENDER, Engine::Render },
+	});
+
 	Engine::RegisterComponentType(Engine::COMPONENT_TYPE_PLAYER,
 	{
 		{ Engine::CALLBACK_STAGE_INIT , Game::InitPlayerManager },
@@ -60,17 +68,12 @@ int APIENTRY WinMain(
 
 	Engine::InitComponents();
 
-	Game::SpawnPlayer();
+	Game::g_currentSession.state = Game::GAME_STATE_PRE_GAME;
 
 	while (Engine::ShouldRun())
 	{
-		Engine::PreUpdate();
-
 		Engine::Update();
-
-		Engine::Render();
-
-		Engine::PostUpdate();
+		Game::Update();
 	}
 
 	Engine::Shutdown();

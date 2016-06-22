@@ -4,16 +4,16 @@
 
 namespace Game
 {
-	struct Alien : Engine::BaseComponent
+	struct Alien
 	{
 		float lastDroped;
 	};
 
-	void InitAlienManager(Engine::ComponentManager *const manager);
+	void InitAlienManager(Engine::ComponentManager::LayerData *const data);
 
-	void HandleAlienCollisions(Engine::ComponentManager* const manager);
-	void UpdateAliens(Engine::ComponentManager* const manager);
-	void SpawnAliens(Engine::ComponentManager* const manager);
+	void HandleAlienCollisions(Engine::ComponentManager::LayerData *const data);
+	void UpdateAliens(Engine::ComponentManager::LayerData *const data);
+	void SpawnAliens(Engine::ComponentManager::LayerData *const data);
 
-	void ShutdownAlienManager(Engine::ComponentManager* const manager);
+	void ShutdownAlienManager(Engine::ComponentManager::LayerData *const data);
 }

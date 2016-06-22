@@ -22,13 +22,17 @@ namespace Engine
 		return handle;
 	}
 
-	void DestroySprite(const ResourceHandle& handle)
+	void CleanupResources()
 	{
 		Resources *const resources = g_context->resources;
 
-		ISprite *const sprite = *ResolveSprite(handle);
-		sprite->destroy();
+		for (const auto resource : resources->toBeFreed)
+		{
+			ISprite *const sprite = *ResolveSprite(resource);
+			sprite->destroy();
 
-		resources->caches[RESOURCE_TYPE_SPRITE].Free(handle.index);
+			resources->caches[RESOURCE_TYPE_SPRITE].Free(resource.index);
+		}
+		resources->toBeFreed.clear();
 	}
 }

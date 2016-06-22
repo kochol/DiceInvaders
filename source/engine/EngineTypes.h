@@ -1,4 +1,6 @@
 #pragma once
+#include <unordered_set>
+
 #include "core/Library.h"
 #include "core/EntityHandleManager.h"
 #include "core/RosterPool.h"
@@ -6,32 +8,6 @@
 
 namespace Engine
 {
-	struct BaseComponent
-	{
-		EntityHandle entity;
-		ComponentHandle model;
-	};
-
-	struct ComponentManager
-	{
-		ComponentType type;
-		// these types are so rarely used
-		// use entity id as the key
-		HandleHashMap<EntityHandle, ComponentHandle> componentMap;
-		RosterPool components;
-
-		typedef void(*Callback)(ComponentManager *const);
-		Callback callbacks[CALLBACK_STAGE_MAX];
-
-		void *customData;
-	};
-
-	struct Resources
-	{
-		// store all loaded resources
-		RosterPool caches[RESOURCE_TYPE_MAX];
-	};
-
 	struct Vector2
 	{
 		float x;
@@ -42,6 +18,42 @@ namespace Engine
 	{
 		Vector2 center;
 		Vector2 halfSize;
+	};
+
+	struct ComponentManager
+	{
+		ComponentType type;
+
+		// these types are so rarely used
+		// use entity id as the key
+		HandleHashMap<EntityHandle, ComponentHandle> componentMap;
+
+		struct LayerData
+		{
+			LayerId layerId;
+			RosterPool components;
+			std::unordered_set<uint16_t> toBeFreed;
+			void *customData;
+		};
+		LayerData layerData[LAYER_ID_MAX];
+
+		typedef void(*Callback)(LayerData *const);
+		Callback callbacks[CALLBACK_STAGE_MAX];
+	};
+
+	struct Resources
+	{
+		// store all loaded resources
+		RosterPool caches[RESOURCE_TYPE_MAX];
+		HandleHashSet<ResourceHandle> toBeFreed;
+	};
+
+	
+	struct BaseComponent
+	{
+		ComponentHandle self;
+		EntityHandle entity;
+		ComponentHandle model;
 	};
 
 	struct Transform
@@ -61,25 +73,25 @@ namespace Engine
 		uint8_t padding;
 	};
 
-	struct Layer
-	{
-		LayerId id;
-		RosterPool models;
-		BoundingBox boundingBox;
-	};
-
 	struct World
 	{
 		// uniformly indexed common components.
 		// component id can be used as a direct index on them
 		EntityHandleManager handleManager;
-		HandleHashMap<EntityHandle, ComponentHandle> modelMap;
+		HandleHashSet<EntityHandle> toBeFreedEntities;
 
-		Layer *layers[LAYER_ID_MAX];
+		struct LayerData
+		{
+			LayerId layerId;
+			BoundingBox boundingBox;
+			uint16_t maxEntities;
+		};
 
-		ComponentManager *components[COMPONENT_TYPE_MAX];
+		LayerData layers[LAYER_ID_MAX];
+		ComponentManager components[COMPONENT_TYPE_MAX];
 
 		std::vector<std::pair<LayerId, LayerId>> collisionMasks;
+		
 	};
 
 	struct FrameData

@@ -3,14 +3,10 @@
 
 namespace Game
 {
-	struct Bomb : Engine::BaseComponent
-	{
-	};
+	void InitBombManager(Engine::ComponentManager::LayerData *const data);
 
-	void InitBombManager(Engine::ComponentManager *const manager);
+	void HandleBombCollisions(Engine::ComponentManager::LayerData *const data);
+	void UpdateBombs(Engine::ComponentManager::LayerData *const data);
 
-	void HandleBombCollisions(Engine::ComponentManager* const manager);
-	void UpdateBombs(Engine::ComponentManager* const manager);
-
-	void ShutdownBombManager(Engine::ComponentManager* const manager);
+	void ShutdownBombManager(Engine::ComponentManager::LayerData *const data);
 }

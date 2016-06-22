@@ -18,7 +18,7 @@ namespace Engine
 		}
 
 		handle.header.salt = _salts[handle.index];
-		handle.header.layer = layer;
+		handle.header.layer = static_cast<uint8_t>(layer);
 
 		return handle;
 	}

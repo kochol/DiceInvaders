@@ -8,27 +8,17 @@ namespace Engine
 
 	void Init(const Config& config);
 	void Shutdown();
-	bool ShouldRun();
-
-	void InitComponents();
-	void PreUpdate();
 	void Update();
-	void PostUpdate();
-	void ShutdownComponents();
-
-	void UpdateLayerBoundingBoxes();
-	void DetectCollisions();
-	void DetectBoundaryCollisions();
-	void Render();
+	void ExecuteComponentCallbacks(CallbackStage stage);
 
 	// World
 	void InitLayer(const LayerId layer_id, const uint16_t max_entities);
-	inline Layer* ResolveLayer(const LayerId layer) { return g_context->world->layers[layer]; }
-	inline Layer* ResolveLayer(const ComponentHandle& handle) { return ResolveLayer(static_cast<LayerId>(handle.header.layer)); }
-	inline Layer* ResolveLayer(const EntityHandle& handle) { return ResolveLayer(static_cast<LayerId>(handle.header.layer)); }
+	inline World::LayerData* GetLayerData(const LayerId layer_id) { return &g_context->world->layers[layer_id]; }
 
 	// Utility
+	inline void DrawText(int x, int y, const char *const text) { g_context->system->drawText(x, y, text); }
 	float Random();
+	bool ShouldRun();
 	inline const Config& GetConfig() { return *g_context->config; }
 	inline int ScreenWidth() { return g_context->config->screen_width; }
 	inline int ScreenHeight() { return g_context->config->screen_height; }
@@ -39,56 +29,47 @@ namespace Engine
 	inline const KeyStatus& Keys() { return g_context->frame_data->keys; }
 
 	// Component
+	void InitComponents();
+	void CleanupComponents();
 	void RegisterComponentType(const ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks);
-	inline ComponentManager* GetComponentManager(const ComponentType type) { return g_context->world->components[type]; }
-	ComponentHandle CreateComponent(const EntityHandle& entity, const ComponentType type, const ComponentHandle& model);
+	inline ComponentManager* GetComponentManager(const ComponentType type) { return &g_context->world->components[type]; }
+
+	ComponentHandle CreateComponent(const EntityHandle& entity, const ComponentType type);
 	void DestroyComponent(const ComponentHandle& component);
-	inline ComponentHandle     GetComponentHandle(uint16_t index, ComponentType type, LayerId layer)
+	inline ComponentHandle     ConstructComponentHandle(uint16_t index, ComponentType type, LayerId layer)
 	{
 		ComponentHandle handle;
 		handle.index = index;
-		handle.header.type = type;
-		handle.header.layer = layer;
-
+		handle.header.type = static_cast<uint8_t>(type);
+		handle.header.layer = static_cast<uint8_t>(layer);
 		return handle;
 	}
+	inline ComponentHandle LookupComponent(const EntityHandle& handle, const ComponentType type) { return GetComponentManager(type)->componentMap[handle]; }
+	inline RosterPool* ResolveComponentPool(const ComponentType type, const LayerId layer) { return &GetComponentManager(type)->layerData[layer].components; }
+
+	template<typename T>
+	T* ResolveComponentSegment(const ComponentHandle& component, const uint8_t segment) { return ResolveComponentPool(static_cast<ComponentType>(component.header.type), static_cast<LayerId>(component.header.layer))->Resolve<T>(component.index, segment); }
+	template<typename T>
+	T* ResolveComponentSegmentData(const ComponentType type, const LayerId layer, const uint8_t segment) { return ResolveComponentPool(type, layer)->Data<T>(segment); }
 
 	// Entity
+	void CleanupEntities();
 	inline EntityHandle CreateEntity(const LayerId layer) { return g_context->world->handleManager.Create(layer); }
-	inline void         DestroyEntity(const EntityHandle& handle) { g_context->world->handleManager.Destroy(handle); }
+	inline void         DestroyEntity(const EntityHandle& handle) { g_context->world->toBeFreedEntities.insert(handle); }
 	inline bool         ValidEntity(const EntityHandle& handle) { return g_context->world->handleManager.Valid(handle); }
+	
 
 	// Model
-	ComponentHandle        CreateModel(const EntityHandle& handle, const ResourceHandle& sprite);
-	inline ComponentHandle LookupModel(const EntityHandle& handle) { return g_context->world->modelMap[handle]; }
-	void                   DestroyModel(const ComponentHandle& handle);
-	
-	inline  uint16_t          ResolveModelCount(const Layer& layer) { return layer.models.Size(); }
-	inline  const uint16_t*   ResolveModelIndexes(const Layer& layer) { return layer.models.Indexes(); }
-	inline  BaseComponent*    ResolveModelComponentData(const Layer& layer) { return layer.models.Data<BaseComponent>(0); }
-	inline  Transform*        ResolveModelTransformData(const Layer& layer) { return layer.models.Data<Transform>(1); }
-	inline  ResourceHandle*   ResolveModelSpriteData(const Layer& layer) { return layer.models.Data<ResourceHandle>(2); }
-	inline  Collider*         ResolveModelColliderData(const Layer& layer) { return layer.models.Data<Collider>(3); }
-	inline  Collision*    ResolveModelCollisionData(const Layer& layer) { return layer.models.Data<Collision>(4); }
-
-	inline  uint16_t          ResolveModelCount(const LayerId layer) { return ResolveModelCount(*ResolveLayer(layer)); }
-	inline  const uint16_t*   ResolveModelIndexes(const LayerId layer) { return ResolveModelIndexes(*ResolveLayer(layer)); }
-	inline  BaseComponent*    ResolveModelComponentData(const LayerId layer) { return ResolveModelComponentData(*ResolveLayer(layer)); }
-	inline  Transform*        ResolveModelTransformData(const LayerId layer) { return ResolveModelTransformData(*ResolveLayer(layer)); }
-	inline  ResourceHandle*   ResolveModelSpriteData(const LayerId layer) { return ResolveModelSpriteData(*ResolveLayer(layer)); }
-	inline  Collider*         ResolveModelColliderData(const LayerId layer) { return ResolveModelColliderData(*ResolveLayer(layer)); }
-	inline  Collision*    ResolveModelCollisionData(const LayerId layer) { return ResolveModelCollisionData(*ResolveLayer(layer)); }
-
-	inline  BaseComponent*  ResolveModelComponent(const ComponentHandle& handle) { return ResolveLayer(handle)->models.Resolve<BaseComponent>(handle.index, 0); }
-	inline  Transform*  ResolveModelTransform(const ComponentHandle& handle) { return ResolveLayer(handle)->models.Resolve<Transform>(handle.index, 1); }
-	inline  ResourceHandle*  ResolveModelSprite(const ComponentHandle& handle) { return ResolveLayer(handle)->models.Resolve<ResourceHandle>(handle.index, 2); }
-	inline  Collider*  ResolveModelCollider(const ComponentHandle& handle) { return ResolveLayer(handle)->models.Resolve<Collider>(handle.index, 3); }
-	inline  Collision*  ResolveModelCollision(const ComponentHandle& handle) { return ResolveLayer(handle)->models.Resolve<Collision>(handle.index, 4); }
+	void InitModels(ComponentManager::LayerData *const data);
+	void UpdatePhysicsBroadPhase(ComponentManager::LayerData *const data);
+	void UpdatePhysicsNarrowPhase(ComponentManager::LayerData *const data);
+	void Render(ComponentManager::LayerData *const data);
 
 	// Resources
+	void CleanupResources();
 	ResourceHandle   LoadSprite(const std::string& name);
 	inline ISprite** ResolveSprite(const ResourceHandle& handle) { return g_context->resources->caches[RESOURCE_TYPE_SPRITE].Resolve<ISprite*>(handle.index); }
 	inline const uint16_t* ResolveSpriteIndexes() { return g_context->resources->caches[RESOURCE_TYPE_SPRITE].Indexes(); }
 	inline ISprite** ResolveSpriteData() { return g_context->resources->caches[RESOURCE_TYPE_SPRITE].Data<ISprite*>(); }
-	void             DestroySprite(const ResourceHandle& handle);
+	inline void             DestroySprite(const ResourceHandle& handle) { g_context->resources->toBeFreed.insert(handle); }
 }

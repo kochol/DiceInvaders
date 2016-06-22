@@ -23,19 +23,6 @@ namespace Engine
 
 	// Internal function forward decls
 	static void _LoadLibrary(_Context *const _context);
-	static void ExecuteComponentCallbacks(CallbackStage stage)
-	{
-		for (auto const manager : g_context->world->components)
-		{
-			if (manager == nullptr)
-				continue;
-
-			if (manager->callbacks[stage] == nullptr)
-				continue;
-
-			manager->callbacks[stage](manager);
-		}
-	}
 
 	void Init(const Config& config)
 	{
@@ -50,10 +37,6 @@ namespace Engine
 		_context->resources->caches[RESOURCE_TYPE_SPRITE].Init(10, { sizeof(ISprite*) });
 
 		_context->world = new World;
-		for (auto& layer : _context->world->layers)
-			layer = nullptr;
-		for (auto& manager : _context->world->components)
-			manager = nullptr;
 		
 		_FrameData *const _frame_data = new _FrameData;
 		_frame_data->_prev_time = _context->system->getElapsedTime();
@@ -64,18 +47,6 @@ namespace Engine
 		_context->rnd_dist = new std::uniform_real_distribution<float>(0.f, 1.f);
 
 		g_context = reinterpret_cast<Context*>(_context);
-	}
-
-	static void _LoadLibrary(_Context *const _context)
-	{
-		_context->_lib = LoadLibrary("DiceInvaders.dll");
-		assert(_context->_lib);
-
-		LibraryFactoryType* factory = reinterpret_cast<LibraryFactoryType*>
-			(GetProcAddress(_context->_lib, "DiceInvadersFactory"));
-
-		_context->system = factory();
-		assert(_context->system != nullptr);
 	}
 
 	void Shutdown()
@@ -92,6 +63,62 @@ namespace Engine
 		FreeLibrary(_context->_lib);
 	}
 
+	void Update()
+	{
+		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
+		_FrameData *const _frame_data = reinterpret_cast<_FrameData *const>(g_context->frame_data);
+
+		const float time = _context->system->getElapsedTime();
+		_frame_data->time = time;
+		_frame_data->dt = time - _frame_data->_prev_time;
+		_frame_data->_prev_time = time;
+
+		_context->system->getKeyStatus(_frame_data->keys);
+
+		ExecuteComponentCallbacks(CALLBACK_STAGE_PHYSICS_BROAD);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_PHYSICS_NARROW);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_PRE_UPDATE);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_UPDATE);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_RENDER);
+		ExecuteComponentCallbacks(CALLBACK_STAGE_POST_UPDATE);
+		CleanupComponents();
+		CleanupEntities();
+		CleanupResources();
+
+		const float engine_time = _context->system->getElapsedTime();
+
+		_context->_running = g_context->system->update();
+
+		const float library_time = _context->system->getElapsedTime();
+
+		char debug_text[100];
+		sprintf_s(debug_text, 100, "-frame_t: %.3f ms", 1000.0f * (library_time - time));
+		g_context->system->drawText(0, 20, debug_text);
+		sprintf_s(debug_text, 100, "--engine: %% %.2f", 100.0f * (engine_time - time) / (library_time - time));
+		g_context->system->drawText(0, 40, debug_text);
+		sprintf_s(debug_text, 100, "--library: %% %.2f", 100.0f * (library_time - engine_time) / (library_time - time));
+		g_context->system->drawText(0, 60, debug_text);
+	}
+
+	void InitLayer(const LayerId layer_id, const uint16_t max_items)
+	{
+		World::LayerData *const layer = GetLayerData(layer_id);
+
+		layer->layerId = layer_id;
+		layer->maxEntities = max_items;
+	}
+
+	void CleanupEntities()
+	{
+		World *const world = g_context->world;
+		for (const auto entity : world->toBeFreedEntities)
+		{
+			world->handleManager.Destroy(entity);
+		}
+
+		world->toBeFreedEntities.clear();
+	}
+
 	float Random()
 	{
 		_Context *const _context = reinterpret_cast<_Context*>(g_context);
@@ -104,91 +131,15 @@ namespace Engine
 		return _context->_running;
 	}
 
-	void InitComponents()
+	static void _LoadLibrary(_Context *const _context)
 	{
-		ExecuteComponentCallbacks(CALLBACK_STAGE_INIT);
-	}
+		_context->_lib = LoadLibrary("DiceInvaders.dll");
+		assert(_context->_lib);
 
-	void PreUpdate()
-	{
-		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
-		_FrameData *const _frame_data = reinterpret_cast<_FrameData *const>(g_context->frame_data);
+		LibraryFactoryType* factory = reinterpret_cast<LibraryFactoryType*>
+			(GetProcAddress(_context->_lib, "DiceInvadersFactory"));
 
-		UpdateLayerBoundingBoxes();
-		DetectCollisions();
-		DetectBoundaryCollisions();
-
-		const float time = _context->system->getElapsedTime();
-		_frame_data->time = time;
-		_frame_data->dt = time - _frame_data->_prev_time;
-		_frame_data->_prev_time = time;
-
-		_context->system->getKeyStatus(_frame_data->keys);
-
-		ExecuteComponentCallbacks(CALLBACK_STAGE_PRE_UPDATE);
-	}
-
-	void Update()
-	{
-		ExecuteComponentCallbacks(CALLBACK_STAGE_UPDATE);
-	}
-
-	void PostUpdate()
-	{
-		_Context *const _context = reinterpret_cast<_Context *const>(g_context);
-		_context->_running = g_context->system->update();
-
-		ExecuteComponentCallbacks(CALLBACK_STAGE_POST_UPDATE);
-
-		char debug_text[100];
-		sprintf(debug_text, "frame_t: %.5f ms", 1000.0f * Engine::DeltaTime());
-		g_context->system->drawText(0, 0, debug_text);
-	}
-
-	void InitLayer(const LayerId layer_id, const uint16_t max_items)
-	{
-		assert(g_context->world->layers[layer_id] == nullptr);
-
-		Layer *const layer = new Layer;
-
-		layer->id = layer_id;
-		layer->models.Init(max_items, { sizeof(BaseComponent), sizeof(Transform), sizeof(ResourceHandle), sizeof(Collider), sizeof(Collision) });
-
-		g_context->world->layers[layer_id] = layer;
-	}
-
-	void RegisterComponentType(const ComponentType type, const std::unordered_map<CallbackStage, ComponentManager::Callback>& callbacks)
-	{
-		assert(g_context->world->components[type] == nullptr);
-
-		ComponentManager *const manager = new ComponentManager;
-		
-		manager->type = type;
-
-		for (auto& callback : manager->callbacks)
-			callback = nullptr;
-
-		for (const auto callback : callbacks)
-			manager->callbacks[callback.first] = callback.second;
-		
-		g_context->world->components[type] = manager;
-	}
-
-	ComponentHandle CreateComponent(const EntityHandle& entity, const ComponentType type, const ComponentHandle& model)
-	{
-		Engine::ComponentManager *const manager = Engine::GetComponentManager(type);
-
-		Engine::ComponentHandle component;
-		component.index = manager->components.Alloc();
-		component.header.layer = entity.header.layer;
-		component.header.type = manager->type;
-
-		manager->componentMap[entity] = component;
-
-		BaseComponent *const componentData = manager->components.Resolve<BaseComponent>(component.index);
-		componentData->entity = entity;
-		componentData->model = model;
-
-		return component;
+		_context->system = factory();
+		assert(_context->system != nullptr);
 	}
 }
