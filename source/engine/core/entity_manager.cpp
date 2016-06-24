@@ -52,7 +52,7 @@ namespace Engine
 
 	bool EntityManager::Valid(const EntityHandle& handle) const
 	{
-		assert(handle.index < _salts.size());
+		assert(handle.index < salts.size());
 		return handle.header.salt == salts[handle.index];
 	}
 
